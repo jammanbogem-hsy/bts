@@ -114,7 +114,8 @@
 
     .map-wrap{
       position:relative;
-      height:780px;
+      min-height:680px;
+      height:clamp(680px, 62vw, 900px);
       border-radius:28px;
       overflow:hidden;
       background:
@@ -126,35 +127,37 @@
     .grid-layer{
       position:absolute; inset:0;
       background-image:
-        linear-gradient(rgba(255,255,255,.18) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,.18) 1px, transparent 1px);
-      background-size: 36px 36px;
-      opacity:.32;
+        linear-gradient(rgba(255,255,255,.14) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.14) 1px, transparent 1px);
+      background-size: 42px 42px;
+      opacity:.24;
       mask-image: linear-gradient(180deg, rgba(0,0,0,.95), rgba(0,0,0,.55));
+      pointer-events:none;
     }
     .connections{position:absolute; inset:0; width:100%; height:100%; pointer-events:none}
     .connections path{
-      fill:none; stroke:var(--line); stroke-width:2.5; opacity:.72;
-      stroke-linecap:round;
+      fill:none; stroke:var(--line); stroke-width:2.8; opacity:.92;
+      stroke-linecap:round; stroke-linejoin:round;
+      filter: drop-shadow(0 2px 10px rgba(164,184,219,.24));
     }
-    .connections path.soft{stroke-width:1.3; opacity:.30}
-    .connections text{fill:#8b99b6; font-size:11px}
+    .connections path.soft{stroke-width:1.6; opacity:.38}
+    .edge-label-bg{fill:rgba(255,255,255,.78); stroke:rgba(255,255,255,.92); stroke-width:1.1}
+    .edge-label-text{fill:#556783; font-size:15px; font-weight:800; letter-spacing:-.01em}
 
     .node{
       position:absolute;
-      min-height:78px;
+      min-height:88px;
       padding:10px;
       cursor:pointer;
-      transform:scale(.90);
-      transform-origin:top left;
+      transform:translate(-50%,-50%);
+      transform-origin:center;
+      width:calc(var(--w) * 100% / 1200);
+      max-width:260px;
     }
-    .node .glass-content{padding:12px 14px}
-    .node-title{font-size:14px; font-weight:800; margin:0 0 6px; color:#263654; line-height:1.3}
-    .node-sub{font-size:12px; color:#647492; line-height:1.45}
-    .node[data-kind="x"]{width:220px}
-    .node[data-kind="cluster"]{width:252px}
-    .node[data-kind="offline"]{width:220px}
-    .node[data-kind="store"]{width:230px}
+    .node:hover{ transform:translate(-50%,-52%); }
+    .node .glass-content{padding:14px 16px}
+    .node-title{font-size:15px; font-weight:800; margin:0 0 6px; color:#263654; line-height:1.3}
+    .node-sub{font-size:12px; color:#647492; line-height:1.5}
     .node[data-kind="x"] .glass-overlay{background:linear-gradient(180deg, rgba(255,255,255,.30), rgba(255,255,255,.13)), color-mix(in srgb, var(--x) 34%, white 66%)}
     .node[data-kind="cluster"] .glass-overlay{background:linear-gradient(180deg, rgba(255,255,255,.30), rgba(255,255,255,.13)), color-mix(in srgb, var(--cluster) 36%, white 64%)}
     .node[data-kind="offline"] .glass-overlay{background:linear-gradient(180deg, rgba(255,255,255,.30), rgba(255,255,255,.13)), color-mix(in srgb, var(--offline) 34%, white 66%)}
@@ -189,13 +192,16 @@
       .hero{grid-template-columns:1fr}
       .grid{grid-template-columns:1fr}
       .summary-row{grid-template-columns:repeat(2,1fr)}
-      .map-wrap{height:1040px}
+      .map-wrap{height:840px}
     }
     @media (max-width:760px){
       .summary-row{grid-template-columns:1fr}
-      .map-wrap{height:1280px}
+      .map-wrap{height:1080px}
       .header{padding:18px}
       h1{font-size:28px}
+      .edge-label-text{font-size:13px}
+      .node-title{font-size:14px}
+      .node-sub{font-size:11px}
     }
   </style>
 </head>
@@ -226,29 +232,7 @@
 
           <div class="map-wrap" id="mapWrap">
             <div class="grid-layer"></div>
-            <svg class="connections" viewBox="0 0 1200 940" preserveAspectRatio="none" aria-hidden="true">
-              <path d="M 218 120 C 300 120, 350 120, 444 120"></path>
-              <path class="soft" d="M 218 120 C 300 200, 350 330, 444 760"></path>
-              <path d="M 218 340 C 300 340, 350 340, 444 340"></path>
-              <path d="M 218 570 C 300 570, 350 570, 444 570"></path>
-              <path d="M 218 800 C 300 800, 350 800, 444 800"></path>
-              <path d="M 696 120 C 810 150, 870 170, 956 180"></path>
-              <path d="M 696 340 C 810 290, 870 220, 956 180"></path>
-              <path d="M 696 570 C 835 530, 930 520, 1080 500"></path>
-              <path d="M 696 800 C 810 710, 870 560, 956 390"></path>
-              <path d="M 696 800 C 810 810, 870 820, 956 830"></path>
-              <path d="M 1176 180 C 1210 250, 1210 360, 1176 500"></path>
-              <path d="M 1176 390 C 1210 420, 1210 450, 1176 500"></path>
-              <path d="M 1176 620 C 1210 585, 1210 545, 1176 500"></path>
-              <path d="M 1176 830 C 1210 720, 1210 620, 1176 500"></path>
-              <text x="333" y="106">입장 준비</text>
-              <text x="334" y="326">반입 제약</text>
-              <text x="334" y="556">응원 지속성</text>
-              <text x="332" y="786">체류 압력</text>
-              <text x="838" y="166">빠른 식사</text>
-              <text x="833" y="382">수분 보급</text>
-              <text x="836" y="822">기념 소비</text>
-            </svg>
+            <svg class="connections" id="connections" viewBox="0 0 1200 900" preserveAspectRatio="xMidYMid meet" aria-hidden="true"></svg>
           </div>
 
           <div class="legend">
@@ -301,20 +285,39 @@
       {title:'편의점 관점 결론',body:'편의점은 팬들의 수요를 읽고 생수는 박스 단위, 즉석식은 앞 진열, 기념품은 눈에 잘 띄는 자리로 움직일 수 있습니다.',tags:['추가 배치','전면 진열']},
       {title:'해석 순서',body:'입장 준비 → 반입 규정 → 대기열 → 오프라인 품목 → 추가 배치 순서로 보면 전체 흐름이 자연스럽게 보입니다.',tags:['스토리 흐름']}
     ];
+    const VIEW_W = 1200;
+    const VIEW_H = 900;
     const nodes=[
-      {id:'x1',kind:'x',x:36,y:70,title:'준비물 반복어',sub:'티켓·신분증·물·보조배터리',detail:'<p><b>설명:</b> 팬들이 공연 전에 먼저 꺼내보는 준비물 리스트입니다.</p><p><a href="file:///Users/hongseong-yong/openclaw/BTS_X키워드수집/q1_bts_prepare.json">X 원본 열기</a></p>'},
-      {id:'x2',kind:'x',x:36,y:290,title:'반입규정 반복어',sub:'clear bag·짐검사·반입불가',detail:'<p><b>설명:</b> 공연장 규칙이 팬들의 구매 선택을 바꿉니다.</p><p><a href="file:///Users/hongseong-yong/openclaw/BTS_X키워드수집/q2_bts_items.json">X 원본 열기</a></p>'},
-      {id:'x3',kind:'x',x:36,y:520,title:'아미밤/응원봉 군집',sub:'아미밤·응원봉·AAA 건전지',detail:'<p><b>설명:</b> 이 노드는 물/생수보다 전력 유지와 몰입 지속성을 설명합니다.</p><p><a href="file:///Users/hongseong-yong/openclaw/BTS_X키워드수집/q3_armybomb.json">X 원본 열기</a></p>'},
-      {id:'x4',kind:'x',x:36,y:750,title:'대기열/체력관리 군집',sub:'물·핫팩·휴지·선풍기·약',detail:'<p><b>설명:</b> 생수와 김밥을 움직이는 가장 직접적인 원인입니다.</p>'},
-      {id:'c1',kind:'cluster',x:374,y:70,title:'입장/신분 의미군집',sub:'입장 가능 상태를 만드는 준비',detail:'<p>입장권과 신분증은 공연 소비의 출발선입니다.</p>'},
-      {id:'c2',kind:'cluster',x:374,y:290,title:'제약/압축 의미군집',sub:'규정이 소비 형태를 바꾼다',detail:'<p>clear bag과 짐검사는 선택을 작고 간편한 물품 쪽으로 몰아갑니다.</p>'},
-      {id:'c3',kind:'cluster',x:374,y:520,title:'응원/전원 의미군집',sub:'응원 장비와 전력 유지',detail:'<p>아미밤은 생수보다 전력과 현장 지속성을 설명합니다.</p>'},
-      {id:'c4',kind:'cluster',x:374,y:750,title:'대기/체력관리 의미군집',sub:'야외 체류가 보급 수요를 만든다',detail:'<p>물, 물티슈, 선풍기, 약, 간단한 먹거리는 줄서기와 체류시간 때문에 필요해집니다.</p>'},
-      {id:'o1',kind:'offline',x:886,y:130,title:'샌드위치/김밥',sub:'빠르게 먹고 이동 가능한 즉석식',detail:'<p><a target="_blank" href="https://search.naver.com/search.naver?query=BTS%20%EA%B3%B5%EC%97%B0%20%EC%83%81%EA%B6%8C%20%EB%A7%A4%EC%B6%9C">출처 열기</a></p>'},
-      {id:'o2',kind:'offline',x:886,y:340,title:'생수/음료',sub:'대기열 보급의 핵심',detail:'<p><a target="_blank" href="https://search.naver.com/search.naver?query=BTS%20%EA%B3%B5%EC%97%B0%20%EC%83%81%EA%B6%8C%20%EB%A7%A4%EC%B6%9C">출처 열기</a></p>'},
-      {id:'o3',kind:'offline',x:886,y:570,title:'K-라면/가공식품',sub:'간편 조달 + 기념 체험의 이중 구조',detail:'<p><a target="_blank" href="https://search.naver.com/search.naver?query=BTS%20%EA%B3%B5%EC%97%B0%20%EC%83%81%EA%B6%8C%20%EB%A7%A4%EC%B6%9C">출처 열기</a></p>'},
-      {id:'o4',kind:'offline',x:886,y:780,title:'키링/굿즈',sub:'감정과 정체성이 만든 기념 소비',detail:'<p><a target="_blank" href="https://search.naver.com/search.naver?query=BTS%20%EA%B3%B5%EC%97%B0%20%EC%83%81%EA%B6%8C%20%EB%A7%A4%EC%B6%9C">출처 열기</a></p>'},
-      {id:'s1',kind:'store',x:1038,y:450,title:'편의점 추가 배치/전면 진열',sub:'즉석식·생수·간편식·기념품을 앞쪽에',detail:'<p><b>최종 결론:</b> 팬들의 수요 언어와 현장 제약을 읽으면 편의점은 무엇을 더 많이, 더 앞에 놓아야 하는지 결정할 수 있습니다.</p>'}
+      {id:'x1',kind:'x',x:120,y:110,w:220,title:'준비물 반복어',sub:'티켓·신분증·물·보조배터리',detail:'<p><b>설명:</b> 팬들이 공연 전에 먼저 꺼내보는 준비물 리스트입니다.</p><p><a href="file:///Users/hongseong-yong/openclaw/BTS_X키워드수집/q1_bts_prepare.json">X 원본 열기</a></p>'},
+      {id:'x2',kind:'x',x:120,y:290,w:220,title:'반입규정 반복어',sub:'clear bag·짐검사·반입불가',detail:'<p><b>설명:</b> 공연장 규칙이 팬들의 구매 선택을 바꿉니다.</p><p><a href="file:///Users/hongseong-yong/openclaw/BTS_X키워드수집/q2_bts_items.json">X 원본 열기</a></p>'},
+      {id:'x3',kind:'x',x:120,y:480,w:220,title:'아미밤/응원봉 군집',sub:'아미밤·응원봉·AAA 건전지',detail:'<p><b>설명:</b> 이 노드는 물/생수보다 전력 유지와 몰입 지속성을 설명합니다.</p><p><a href="file:///Users/hongseong-yong/openclaw/BTS_X키워드수집/q3_armybomb.json">X 원본 열기</a></p>'},
+      {id:'x4',kind:'x',x:120,y:680,w:220,title:'대기열/체력관리 군집',sub:'물·핫팩·휴지·선풍기·약',detail:'<p><b>설명:</b> 생수와 김밥을 움직이는 가장 직접적인 원인입니다.</p>'},
+      {id:'c1',kind:'cluster',x:420,y:110,w:250,title:'입장/신분 의미군집',sub:'입장 가능 상태를 만드는 준비',detail:'<p>입장권과 신분증은 공연 소비의 출발선입니다.</p>'},
+      {id:'c2',kind:'cluster',x:420,y:290,w:250,title:'제약/압축 의미군집',sub:'규정이 소비 형태를 바꾼다',detail:'<p>clear bag과 짐검사는 선택을 작고 간편한 물품 쪽으로 몰아갑니다.</p>'},
+      {id:'c3',kind:'cluster',x:420,y:480,w:250,title:'응원/전원 의미군집',sub:'응원 장비와 전력 유지',detail:'<p>아미밤은 생수보다 전력과 현장 지속성을 설명합니다.</p>'},
+      {id:'c4',kind:'cluster',x:420,y:680,w:250,title:'대기/체력관리 의미군집',sub:'야외 체류가 보급 수요를 만든다',detail:'<p>물, 물티슈, 선풍기, 약, 간단한 먹거리는 줄서기와 체류시간 때문에 필요해집니다.</p>'},
+      {id:'o1',kind:'offline',x:835,y:135,w:220,title:'샌드위치/김밥',sub:'빠르게 먹고 이동 가능한 즉석식',detail:'<p><a target="_blank" href="https://search.naver.com/search.naver?query=BTS%20%EA%B3%B5%EC%97%B0%20%EC%83%81%EA%B6%8C%20%EB%A7%A4%EC%B6%9C">출처 열기</a></p>'},
+      {id:'o2',kind:'offline',x:835,y:330,w:220,title:'생수/음료',sub:'대기열 보급의 핵심',detail:'<p><a target="_blank" href="https://search.naver.com/search.naver?query=BTS%20%EA%B3%B5%EC%97%B0%20%EC%83%81%EA%B6%8C%20%EB%A7%A4%EC%B6%9C">출처 열기</a></p>'},
+      {id:'o3',kind:'offline',x:835,y:545,w:220,title:'K-라면/가공식품',sub:'간편 조달 + 기념 체험의 이중 구조',detail:'<p><a target="_blank" href="https://search.naver.com/search.naver?query=BTS%20%EA%B3%B5%EC%97%B0%20%EC%83%81%EA%B6%8C%20%EB%A7%A4%EC%B6%9C">출처 열기</a></p>'},
+      {id:'o4',kind:'offline',x:835,y:740,w:220,title:'키링/굿즈',sub:'감정과 정체성이 만든 기념 소비',detail:'<p><a target="_blank" href="https://search.naver.com/search.naver?query=BTS%20%EA%B3%B5%EC%97%B0%20%EC%83%81%EA%B6%8C%20%EB%A7%A4%EC%B6%9C">출처 열기</a></p>'},
+      {id:'s1',kind:'store',x:1080,y:440,w:235,title:'편의점 추가 배치/전면 진열',sub:'즉석식·생수·간편식·기념품을 앞쪽에',detail:'<p><b>최종 결론:</b> 팬들의 수요 언어와 현장 제약을 읽으면 편의점은 무엇을 더 많이, 더 앞에 놓아야 하는지 결정할 수 있습니다.</p>'}
+    ];
+    const edges=[
+      ['x1','c1','입장 준비'],
+      ['x2','c2','반입 제약'],
+      ['x3','c3','응원 지속성'],
+      ['x4','c4','체류 압력'],
+      ['x1','c4','대기 대비','soft'],
+      ['c1','o1','빠른 식사'],
+      ['c2','o1','간편 소비'],
+      ['c4','o2','수분 보급'],
+      ['c4','o3','현장 보충'],
+      ['c4','o4','기념 소비'],
+      ['c3','s1','전력 수요'],
+      ['o1','s1','즉석식 배치'],
+      ['o2','s1','생수 전진'],
+      ['o3','s1','간편식 확대'],
+      ['o4','s1','굿즈 노출']
     ];
 
     function renderCards(targetId, arr){
@@ -329,13 +332,50 @@
     renderCards('cards', cards); renderCards('subcards', subcards);
 
     const mapWrap=document.getElementById('mapWrap');
+    const svg=document.getElementById('connections');
+    const nodeMap=Object.fromEntries(nodes.map(n=>[n.id,n]));
+    const NS='http://www.w3.org/2000/svg';
+    const el=(name,attrs={})=>{const e=document.createElementNS(NS,name); for(const [k,v] of Object.entries(attrs)) e.setAttribute(k,v); return e;};
+
+    function nodeAnchor(node, side){
+      const half=node.w/2;
+      if(side==='left') return {x:node.x-half, y:node.y};
+      if(side==='right') return {x:node.x+half, y:node.y};
+      return {x:node.x, y:node.y};
+    }
+
+    function drawEdge(fromId,toId,label,tone='main'){
+      const from=nodeMap[fromId], to=nodeMap[toId];
+      const start=nodeAnchor(from, from.x < to.x ? 'right' : 'left');
+      const end=nodeAnchor(to, from.x < to.x ? 'left' : 'right');
+      const deltaY=end.y-start.y;
+      const dx=Math.max(92, Math.abs(end.x-start.x)*0.30);
+      const curveY=Math.max(0, Math.abs(deltaY)*0.08);
+      const d=`M ${start.x} ${start.y} C ${start.x+dx} ${start.y+curveY}, ${end.x-dx} ${end.y-curveY}, ${end.x} ${end.y}`;
+      const path=el('path',{d, class:tone==='soft' ? 'soft' : ''});
+      svg.appendChild(path);
+
+      const mx=start.x + (end.x-start.x)*0.53;
+      const my=start.y + (end.y-start.y)*0.50 - (Math.abs(deltaY)>110 ? 22 : 16);
+      const w=Math.max(92, label.length*16 + 10);
+      const g=el('g',{});
+      const rect=el('rect',{x:mx-w/2,y:my-17,width:w,height:30,rx:15,ry:15,class:'edge-label-bg'});
+      const text=el('text',{x:mx,y:my+4,'text-anchor':'middle',class:'edge-label-text'});
+      text.textContent=label;
+      g.append(rect,text);
+      svg.appendChild(g);
+    }
+
+    edges.forEach(([from,to,label,tone])=>drawEdge(from,to,label,tone));
+
     nodes.forEach(n=>{
       const d=document.createElement('button');
       d.type='button';
       d.className='glass-container node';
       d.dataset.kind=n.kind;
-      d.style.left=n.x+'px';
-      d.style.top=n.y+'px';
+      d.style.setProperty('--w', n.w);
+      d.style.left=(n.x/VIEW_W*100)+'%';
+      d.style.top=(n.y/VIEW_H*100)+'%';
       d.innerHTML=`<div class="glass-filter"></div><div class="glass-overlay"></div><div class="glass-specular"></div><div class="glass-content"><div class="node-title">${n.title}</div><div class="node-sub">${n.sub}</div></div>`;
       d.addEventListener('click',()=>openModal(n));
       mapWrap.appendChild(d);
