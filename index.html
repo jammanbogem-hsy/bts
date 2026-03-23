@@ -381,6 +381,39 @@
       return dy > 0 ? ['bottom','top'] : ['top','bottom'];
     }
 
+    const nodeBoxes = nodes.map(n=>({
+      id:n.id,
+      left:n.x - n.w/2,
+      right:n.x + n.w/2,
+      top:n.y - 34,
+      bottom:n.y + 34
+    }));
+    const placedLabelBoxes = [];
+
+    function overlaps(a,b,pad=10){
+      return !(a.right + pad < b.left || a.left - pad > b.right || a.bottom + pad < b.top || a.top - pad > b.bottom);
+    }
+
+    function resolveLabelBox(baseBox){
+      const candidates = [0, -34, 34, -68, 68, -102, 102, -136, 136];
+      for (const dy of candidates){
+        const box = {
+          left: baseBox.left,
+          right: baseBox.right,
+          top: baseBox.top + dy,
+          bottom: baseBox.bottom + dy
+        };
+        const hitNode = nodeBoxes.some(nb => overlaps(box, nb, 12));
+        const hitLabel = placedLabelBoxes.some(lb => overlaps(box, lb, 8));
+        if (!hitNode && !hitLabel) {
+          placedLabelBoxes.push(box);
+          return box;
+        }
+      }
+      placedLabelBoxes.push(baseBox);
+      return baseBox;
+    }
+
     function drawEdge(fromId,toId,label,tone='main'){
       const from=nodeMap[fromId], to=nodeMap[toId];
       const [fs, ts] = preferredSides(from, to);
@@ -399,8 +432,11 @@
         const mx=start.x + dx*0.5;
         const my=start.y + dy*0.5 - (Math.abs(dy)>120 ? 22 : 14);
         const w=Math.max(86, label.length*14 + 16);
-        const rect=el('rect',{x:mx-w/2,y:my-15,width:w,height:28,rx:14,ry:14,class:'edge-label-bg'});
-        const text=el('text',{x:mx,y:my+4,'text-anchor':'middle',class:'edge-label-text'});
+        const baseBox={left:mx-w/2,right:mx+w/2,top:my-15,bottom:my+13};
+        const box=resolveLabelBox(baseBox);
+        const cy=(box.top+box.bottom)/2;
+        const rect=el('rect',{x:box.left,y:box.top,width:w,height:28,rx:14,ry:14,class:'edge-label-bg'});
+        const text=el('text',{x:mx,y:cy+4,'text-anchor':'middle',class:'edge-label-text'});
         text.textContent=label;
         group.append(rect,text);
       }
