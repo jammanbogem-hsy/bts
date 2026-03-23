@@ -150,12 +150,14 @@
       fill:none; stroke:var(--line); stroke-width:2.2; opacity:.72;
       stroke-linecap:round; stroke-linejoin:round;
       filter: drop-shadow(0 2px 10px rgba(164,184,219,.20));
+      transition: opacity .22s ease, stroke-width .22s ease, filter .22s ease;
     }
     .connections path.strong{stroke-width:2.9; opacity:.92}
     .connections path.soft{stroke-width:1.25; opacity:.24}
     .connections path.ghost{stroke-width:1; opacity:.14}
-    .edge-label-bg{fill:rgba(255,255,255,.86); stroke:rgba(255,255,255,.96); stroke-width:1.1}
-    .edge-label-text{fill:#50627f; font-size:13px; font-weight:800; letter-spacing:-.01em}
+    .edge-group{transition: opacity .22s ease}
+    .edge-label-bg{fill:rgba(255,255,255,.86); stroke:rgba(255,255,255,.96); stroke-width:1.1; transition: fill .22s ease, opacity .22s ease}
+    .edge-label-text{fill:#50627f; font-size:13px; font-weight:800; letter-spacing:-.01em; transition: fill .22s ease, opacity .22s ease}
 
     .node{
       position:absolute;
@@ -170,6 +172,7 @@
       hyphens:none;
       word-break:keep-all;
       overflow-wrap:anywhere;
+      transition: transform .22s ease, opacity .22s ease, filter .22s ease;
     }
     .node:hover{ transform:translate(-50%,-52%); }
     .node .glass-content{padding:10px 11px}
@@ -179,6 +182,15 @@
     .node[data-role='hub'] .glass-content{padding:12px 13px}
     .node[data-role='hub'] .node-title{font-size:13px}
     .node[data-role='hub'] .glass-specular{box-shadow:inset 1px 1px 0 rgba(255,255,255,.92), inset 0 0 12px rgba(255,255,255,.56), inset 0 -1px 0 rgba(255,255,255,.22), 0 0 28px rgba(200,178,241,.18)}
+    .map-wrap.is-focused .node{opacity:.22; filter:saturate(.72) blur(.1px)}
+    .map-wrap.is-focused .node.is-active,
+    .map-wrap.is-focused .node.is-neighbor{opacity:1; filter:none}
+    .map-wrap.is-focused .node.is-active{z-index:6}
+    .map-wrap.is-focused .edge-group{opacity:.10}
+    .map-wrap.is-focused .edge-group.is-related{opacity:1}
+    .map-wrap.is-focused .edge-group.is-related path{stroke-width:3.2; opacity:.96; filter:drop-shadow(0 3px 14px rgba(126,154,205,.34))}
+    .map-wrap.is-focused .edge-group.is-related .edge-label-bg{fill:rgba(255,255,255,.94)}
+    .map-wrap.is-focused .edge-group.is-related .edge-label-text{fill:#314665}
     .node[data-kind="x"] .glass-overlay{background:linear-gradient(180deg, rgba(255,255,255,.30), rgba(255,255,255,.13)), color-mix(in srgb, var(--x) 34%, white 66%)}
     .node[data-kind="cluster"] .glass-overlay{background:linear-gradient(180deg, rgba(255,255,255,.30), rgba(255,255,255,.13)), color-mix(in srgb, var(--cluster) 36%, white 64%)}
     .node[data-kind="offline"] .glass-overlay{background:linear-gradient(180deg, rgba(255,255,255,.30), rgba(255,255,255,.13)), color-mix(in srgb, var(--offline) 34%, white 66%)}
@@ -379,22 +391,45 @@
       const c2x=start.x + dx*0.68, c2y=start.y + dy*0.90;
       const d=`M ${start.x} ${start.y} C ${c1x} ${c1y}, ${c2x} ${c2y}, ${end.x} ${end.y}`;
       const cls = tone==='strong' ? 'strong' : (tone==='soft' ? 'soft' : (tone==='ghost' ? 'ghost' : ''));
+      const group=el('g',{'class':'edge-group','data-from':fromId,'data-to':toId});
       const path=el('path',{d, class:cls});
-      svg.appendChild(path);
+      group.appendChild(path);
 
-      if (tone === 'ghost') return;
-      const mx=start.x + dx*0.5;
-      const my=start.y + dy*0.5 - (Math.abs(dy)>120 ? 22 : 14);
-      const w=Math.max(86, label.length*14 + 16);
-      const g=el('g',{});
-      const rect=el('rect',{x:mx-w/2,y:my-15,width:w,height:28,rx:14,ry:14,class:'edge-label-bg'});
-      const text=el('text',{x:mx,y:my+4,'text-anchor':'middle',class:'edge-label-text'});
-      text.textContent=label;
-      g.append(rect,text);
-      svg.appendChild(g);
+      if (tone !== 'ghost') {
+        const mx=start.x + dx*0.5;
+        const my=start.y + dy*0.5 - (Math.abs(dy)>120 ? 22 : 14);
+        const w=Math.max(86, label.length*14 + 16);
+        const rect=el('rect',{x:mx-w/2,y:my-15,width:w,height:28,rx:14,ry:14,class:'edge-label-bg'});
+        const text=el('text',{x:mx,y:my+4,'text-anchor':'middle',class:'edge-label-text'});
+        text.textContent=label;
+        group.append(rect,text);
+      }
+      svg.appendChild(group);
+      return group;
     }
 
-    edges.forEach(([from,to,label,tone])=>drawEdge(from,to,label,tone));
+    const edgeEls = edges.map(([from,to,label,tone])=>({from,to,el:drawEdge(from,to,label,tone)}));
+    const adjacency = new Map(nodes.map(n=>[n.id,new Set()]));
+    edges.forEach(([from,to])=>{ adjacency.get(from).add(to); adjacency.get(to).add(from); });
+    const nodeEls = new Map();
+
+    function clearFocus(){
+      mapWrap.classList.remove('is-focused');
+      nodeEls.forEach(el=>el.classList.remove('is-active','is-neighbor'));
+      edgeEls.forEach(({el})=>el.classList.remove('is-related'));
+    }
+
+    function focusNode(id){
+      mapWrap.classList.add('is-focused');
+      const related = adjacency.get(id) || new Set();
+      nodeEls.forEach((el,nodeId)=>{
+        el.classList.toggle('is-active', nodeId===id);
+        el.classList.toggle('is-neighbor', related.has(nodeId));
+      });
+      edgeEls.forEach(({from,to,el})=>{
+        el.classList.toggle('is-related', from===id || to===id);
+      });
+    }
 
     nodes.forEach(n=>{
       const d=document.createElement('button');
@@ -402,12 +437,18 @@
       d.className='glass-container node';
       d.dataset.kind=n.kind;
       d.dataset.role=n.role || '';
+      d.dataset.nodeId=n.id;
       d.style.setProperty('--w', n.w);
       d.style.left=(n.x/VIEW_W*100)+'%';
       d.style.top=(n.y/VIEW_H*100)+'%';
       d.innerHTML=`<div class="glass-filter"></div><div class="glass-overlay"></div><div class="glass-specular"></div><div class="glass-content"><div class="node-title">${n.title}</div><div class="node-sub">${n.sub}</div></div>`;
+      d.addEventListener('mouseenter',()=>focusNode(n.id));
+      d.addEventListener('mouseleave',clearFocus);
+      d.addEventListener('focus',()=>focusNode(n.id));
+      d.addEventListener('blur',clearFocus);
       d.addEventListener('click',()=>openModal(n));
       mapWrap.appendChild(d);
+      nodeEls.set(n.id,d);
     });
 
     const modalBg=document.getElementById('modalBg');
