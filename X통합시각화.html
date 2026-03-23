@@ -147,17 +147,19 @@
     }
     .connections{position:absolute; inset:0; width:100%; height:100%; pointer-events:none}
     .connections path{
-      fill:none; stroke:var(--line); stroke-width:2.2; opacity:.72;
+      fill:none; stroke:var(--line); stroke-width:2; opacity:.44;
       stroke-linecap:round; stroke-linejoin:round;
-      filter: drop-shadow(0 2px 10px rgba(164,184,219,.20));
-      transition: opacity .22s ease, stroke-width .22s ease, filter .22s ease;
+      filter: drop-shadow(0 2px 8px rgba(164,184,219,.14));
+      transition: opacity .22s ease, stroke-width .22s ease, filter .22s ease, stroke .22s ease;
     }
-    .connections path.strong{stroke-width:2.9; opacity:.92}
-    .connections path.soft{stroke-width:1.25; opacity:.24}
-    .connections path.ghost{stroke-width:1; opacity:.14}
+    .connections path.strong{stroke-width:2.6; opacity:.78}
+    .connections path.soft{stroke-width:1.15; opacity:.16}
+    .connections path.ghost{stroke-width:.95; opacity:.07}
     .edge-group{transition: opacity .22s ease}
-    .edge-label-bg{fill:rgba(255,255,255,.86); stroke:rgba(255,255,255,.96); stroke-width:1.1; transition: fill .22s ease, opacity .22s ease}
-    .edge-label-text{fill:#50627f; font-size:13px; font-weight:800; letter-spacing:-.01em; transition: fill .22s ease, opacity .22s ease}
+    .edge-group .edge-label-bg,.edge-group .edge-label-text{opacity:0}
+    .edge-group.always-label .edge-label-bg,.edge-group.always-label .edge-label-text{opacity:1}
+    .edge-label-bg{fill:rgba(255,255,255,.88); stroke:rgba(255,255,255,.96); stroke-width:1.1; transition: fill .22s ease, opacity .22s ease}
+    .edge-label-text{fill:#50627f; font-size:12.5px; font-weight:800; letter-spacing:-.01em; transition: fill .22s ease, opacity .22s ease}
 
     .node{
       position:absolute;
@@ -182,14 +184,22 @@
     .node[data-role='hub'] .glass-content{padding:12px 13px}
     .node[data-role='hub'] .node-title{font-size:13px}
     .node[data-role='hub'] .glass-specular{box-shadow:inset 1px 1px 0 rgba(255,255,255,.92), inset 0 0 12px rgba(255,255,255,.56), inset 0 -1px 0 rgba(255,255,255,.22), 0 0 28px rgba(200,178,241,.18)}
-    .map-wrap.is-focused .node{opacity:.22; filter:saturate(.72) blur(.1px)}
+    .node[data-role='hub-core']{max-width:205px; z-index:5}
+    .node[data-role='hub-core'] .glass-content{padding:13px 14px}
+    .node[data-role='hub-core'] .node-title{font-size:13.5px}
+    .node[data-role='hub-core'] .glass-specular{box-shadow:inset 1px 1px 0 rgba(255,255,255,.95), inset 0 0 14px rgba(255,255,255,.60), inset 0 -1px 0 rgba(255,255,255,.24), 0 0 34px rgba(174,158,233,.26)}
+    .map-wrap.is-focused .node{opacity:.16; filter:saturate(.62) blur(.15px)}
     .map-wrap.is-focused .node.is-active,
-    .map-wrap.is-focused .node.is-neighbor{opacity:1; filter:none}
-    .map-wrap.is-focused .node.is-active{z-index:6}
-    .map-wrap.is-focused .edge-group{opacity:.10}
+    .map-wrap.is-focused .node.is-neighbor,
+    .map-wrap.is-focused .node.is-secondary{opacity:1; filter:none}
+    .map-wrap.is-focused .node.is-active{z-index:8}
+    .map-wrap.is-focused .node.is-secondary{opacity:.72}
+    .map-wrap.is-focused .edge-group{opacity:.06}
+    .map-wrap.is-focused .edge-group.always-label:not(.is-related){opacity:.18}
     .map-wrap.is-focused .edge-group.is-related{opacity:1}
-    .map-wrap.is-focused .edge-group.is-related path{stroke-width:3.2; opacity:.96; filter:drop-shadow(0 3px 14px rgba(126,154,205,.34))}
-    .map-wrap.is-focused .edge-group.is-related .edge-label-bg{fill:rgba(255,255,255,.94)}
+    .map-wrap.is-focused .edge-group.is-related path{stroke-width:3; opacity:.98; filter:drop-shadow(0 3px 14px rgba(126,154,205,.34))}
+    .map-wrap.is-focused .edge-group.is-related .edge-label-bg,.map-wrap.is-focused .edge-group.is-related .edge-label-text{opacity:1}
+    .map-wrap.is-focused .edge-group.is-related .edge-label-bg{fill:rgba(255,255,255,.95)}
     .map-wrap.is-focused .edge-group.is-related .edge-label-text{fill:#314665}
     .node[data-kind="x"] .glass-overlay{background:linear-gradient(180deg, rgba(255,255,255,.30), rgba(255,255,255,.13)), color-mix(in srgb, var(--x) 34%, white 66%)}
     .node[data-kind="cluster"] .glass-overlay{background:linear-gradient(180deg, rgba(255,255,255,.30), rgba(255,255,255,.13)), color-mix(in srgb, var(--cluster) 36%, white 64%)}
@@ -334,8 +344,8 @@
       {id:'x3',role:'source',kind:'x',x:240,y:610,w:170,title:'대기열·체력관리 군집',sub:'물·핫팩·휴지·선풍기·약',detail:'<p><b>이야기 장면:</b> 팬들이 가장 현실적으로 몸으로 느끼는 순간은 줄을 서는 시간입니다.</p><p><b>의미 추출:</b> 이 군집은 <b>현장 체류 시간이 보급형 소비를 만든다</b>는 사실을 보여줍니다.</p><p><b>현장 연결:</b> 생수, 음료, 김밥, 샌드위치 같은 편의점 핵심 매출과 가장 직접적으로 이어지는 출발점입니다.</p>'},
       {id:'x4',role:'source',kind:'x',x:315,y:780,w:160,title:'아미밤·응원봉 군집',sub:'응원봉·AAA 건전지',detail:'<p><b>이야기 장면:</b> 응원봉은 단순 물건이 아니라 현장 참여권 같은 상징입니다.</p><p><b>의미 추출:</b> 이 군집은 생필품보다 <b>응원 지속성과 전력 유지</b>를 설명하는 상징적 군집입니다.</p><p><b>현장 연결:</b> 작은 전력 보조 물품의 수요를 간접적으로 읽게 해주는 노드입니다.</p><p><a href="file:///Users/hongseong-yong/openclaw/BTS_X키워드수집/q3_armybomb.json">X 원본 열기</a></p>'},
       {id:'c1',role:'hub',kind:'cluster',x:515,y:180,w:182,title:'입장·신분 의미군집',sub:'입장 가능한 상태를 만드는 준비',detail:'<p><b>군집 해석:</b> 팬들이 스스로를 “입장 가능한 사람”으로 정리하는 단계입니다.</p><p><b>이야기처럼 보면:</b> 티켓과 신분증은 공연 경험의 첫 문을 여는 열쇠입니다.</p><p><b>유통 연결:</b> 사전 확인 행동이 마지막 순간의 오프라인 구매로 이어질 여지를 만듭니다.</p>'},
-      {id:'c2',role:'hub',kind:'cluster',x:520,y:370,w:188,title:'제약·압축 의미군집',sub:'규정이 소비 형태를 바꾼다',detail:'<p><b>군집 해석:</b> 이 노드는 공연장 규칙이 소비를 얼마나 강하게 디자인하는지 보여줍니다.</p><p><b>이야기처럼 보면:</b> 큰 가방은 불안하고, 검사에 걸릴 수 있는 물건은 피하게 됩니다. 결국 작고 빠른 물품이 남습니다.</p><p><b>유통 의미:</b> 간편식과 소형 음료를 더 앞세울 이유를 만들어줍니다.</p>'},
-      {id:'c3',role:'hub',kind:'cluster',x:500,y:585,w:192,title:'대기·체력관리 의미군집',sub:'야외 체류가 보급 수요를 만든다',detail:'<p><b>군집 해석:</b> 전체 의미망의 핵심 축입니다.</p><p><b>이야기처럼 보면:</b> 긴 대기, 피로, 허기, 갈증이 공연 상권의 실용 소비를 만듭니다.</p><p><b>유통 의미:</b> 생수, 음료, 즉석식, 간편식이 한꺼번에 살아나는 중심 허브입니다.</p>'},
+      {id:'c2',role:'hub-core',kind:'cluster',x:520,y:370,w:188,title:'제약·압축 의미군집',sub:'규정이 소비 형태를 바꾼다',detail:'<p><b>군집 해석:</b> 이 노드는 공연장 규칙이 소비를 얼마나 강하게 디자인하는지 보여줍니다.</p><p><b>이야기처럼 보면:</b> 큰 가방은 불안하고, 검사에 걸릴 수 있는 물건은 피하게 됩니다. 결국 작고 빠른 물품이 남습니다.</p><p><b>유통 의미:</b> 간편식과 소형 음료를 더 앞세울 이유를 만들어줍니다.</p>'},
+      {id:'c3',role:'hub-core',kind:'cluster',x:500,y:585,w:196,title:'대기·체력관리 의미군집',sub:'야외 체류가 보급 수요를 만든다',detail:'<p><b>군집 해석:</b> 전체 의미망의 핵심 축입니다.</p><p><b>이야기처럼 보면:</b> 긴 대기, 피로, 허기, 갈증이 공연 상권의 실용 소비를 만듭니다.</p><p><b>유통 의미:</b> 생수, 음료, 즉석식, 간편식이 한꺼번에 살아나는 중심 허브입니다.</p>'},
       {id:'c4',role:'hub',kind:'cluster',x:560,y:760,w:176,title:'응원·전원 의미군집',sub:'응원 장비와 전력 유지',detail:'<p><b>군집 해석:</b> 공연 몰입의 에너지를 유지하려는 팬들의 행동을 보여줍니다.</p><p><b>시각화 포인트:</b> 생필품 소비와 직접 연결되진 않지만, 참여 강도를 설명하는 감정층입니다.</p>'},
       {id:'o1',role:'result',kind:'offline',x:810,y:190,w:168,title:'샌드위치·김밥',sub:'빠르게 먹는 즉석식',detail:'<p><b>의미:</b> 빨리 먹고 이동할 수 있어야 하는 공연 전후 대표 식사입니다.</p><p><b>왜 뜨는가:</b> 반입 규정과 대기 시간이 동시에 작동하면 긴 식사보다 즉석식이 선택됩니다.</p>'},
       {id:'o2',role:'result',kind:'offline',x:900,y:390,w:168,title:'생수·음료',sub:'대기열 보급의 핵심',detail:'<p><b>의미:</b> 의미망에서 가장 직관적인 결과물입니다.</p><p><b>이야기처럼 보면:</b> 줄을 서 있는 사람에게 물 한 병은 사치가 아니라 버티기 위한 최소 장비입니다.</p>'},
@@ -424,7 +434,7 @@
       const c2x=start.x + dx*0.68, c2y=start.y + dy*0.90;
       const d=`M ${start.x} ${start.y} C ${c1x} ${c1y}, ${c2x} ${c2y}, ${end.x} ${end.y}`;
       const cls = tone==='strong' ? 'strong' : (tone==='soft' ? 'soft' : (tone==='ghost' ? 'ghost' : ''));
-      const group=el('g',{'class':'edge-group','data-from':fromId,'data-to':toId});
+      const group=el('g',{'class':'edge-group','data-from':fromId,'data-to':toId,'data-label':label});
       const path=el('path',{d, class:cls});
       group.appendChild(path);
 
@@ -444,7 +454,9 @@
       return group;
     }
 
-    const edgeEls = edges.map(([from,to,label,tone])=>({from,to,el:drawEdge(from,to,label,tone)}));
+    const alwaysVisibleLabels = new Set(['입장 준비','반입 제약','체류 압력','수분 보급','즉석식 배치','생수 전진']);
+    const edgeEls = edges.map(([from,to,label,tone])=>({from,to,label,el:drawEdge(from,to,label,tone)}));
+    edgeEls.forEach(({label,el})=>{ if (alwaysVisibleLabels.has(label)) el.classList.add('always-label'); });
     const adjacency = new Map(nodes.map(n=>[n.id,new Set()]));
     edges.forEach(([from,to])=>{ adjacency.get(from).add(to); adjacency.get(to).add(from); });
     const nodeEls = new Map();
@@ -458,9 +470,12 @@
     function focusNode(id){
       mapWrap.classList.add('is-focused');
       const related = adjacency.get(id) || new Set();
+      const secondary = new Set();
+      related.forEach(nid => { (adjacency.get(nid) || new Set()).forEach(x => { if (x !== id && !related.has(x)) secondary.add(x); }); });
       nodeEls.forEach((el,nodeId)=>{
         el.classList.toggle('is-active', nodeId===id);
         el.classList.toggle('is-neighbor', related.has(nodeId));
+        el.classList.toggle('is-secondary', secondary.has(nodeId));
       });
       edgeEls.forEach(({from,to,el})=>{
         el.classList.toggle('is-related', from===id || to===id);
