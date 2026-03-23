@@ -114,8 +114,8 @@
 
     .map-wrap{
       position:relative;
-      min-height:680px;
-      height:clamp(680px, 62vw, 900px);
+      min-height:760px;
+      height:clamp(760px, 68vw, 980px);
       border-radius:28px;
       overflow:hidden;
       background:
@@ -136,28 +136,28 @@
     }
     .connections{position:absolute; inset:0; width:100%; height:100%; pointer-events:none}
     .connections path{
-      fill:none; stroke:var(--line); stroke-width:2.8; opacity:.92;
+      fill:none; stroke:var(--line); stroke-width:2.4; opacity:.88;
       stroke-linecap:round; stroke-linejoin:round;
-      filter: drop-shadow(0 2px 10px rgba(164,184,219,.24));
+      filter: drop-shadow(0 2px 8px rgba(164,184,219,.18));
     }
-    .connections path.soft{stroke-width:1.6; opacity:.38}
-    .edge-label-bg{fill:rgba(255,255,255,.78); stroke:rgba(255,255,255,.92); stroke-width:1.1}
-    .edge-label-text{fill:#556783; font-size:15px; font-weight:800; letter-spacing:-.01em}
+    .connections path.soft{stroke-width:1.3; opacity:.28}
+    .edge-label-bg{fill:rgba(255,255,255,.84); stroke:rgba(255,255,255,.95); stroke-width:1.1}
+    .edge-label-text{fill:#4f617f; font-size:14px; font-weight:800; letter-spacing:-.01em}
 
     .node{
       position:absolute;
-      min-height:88px;
-      padding:10px;
+      min-height:76px;
+      padding:8px;
       cursor:pointer;
       transform:translate(-50%,-50%);
       transform-origin:center;
       width:calc(var(--w) * 100% / 1200);
-      max-width:260px;
+      max-width:220px;
     }
     .node:hover{ transform:translate(-50%,-52%); }
-    .node .glass-content{padding:14px 16px}
-    .node-title{font-size:15px; font-weight:800; margin:0 0 6px; color:#263654; line-height:1.3}
-    .node-sub{font-size:12px; color:#647492; line-height:1.5}
+    .node .glass-content{padding:11px 13px}
+    .node-title{font-size:14px; font-weight:800; margin:0 0 5px; color:#263654; line-height:1.28}
+    .node-sub{font-size:11px; color:#647492; line-height:1.42}
     .node[data-kind="x"] .glass-overlay{background:linear-gradient(180deg, rgba(255,255,255,.30), rgba(255,255,255,.13)), color-mix(in srgb, var(--x) 34%, white 66%)}
     .node[data-kind="cluster"] .glass-overlay{background:linear-gradient(180deg, rgba(255,255,255,.30), rgba(255,255,255,.13)), color-mix(in srgb, var(--cluster) 36%, white 64%)}
     .node[data-kind="offline"] .glass-overlay{background:linear-gradient(180deg, rgba(255,255,255,.30), rgba(255,255,255,.13)), color-mix(in srgb, var(--offline) 34%, white 66%)}
@@ -192,11 +192,11 @@
       .hero{grid-template-columns:1fr}
       .grid{grid-template-columns:1fr}
       .summary-row{grid-template-columns:repeat(2,1fr)}
-      .map-wrap{height:840px}
+      .map-wrap{height:900px}
     }
     @media (max-width:760px){
       .summary-row{grid-template-columns:1fr}
-      .map-wrap{height:1080px}
+      .map-wrap{height:1180px}
       .header{padding:18px}
       h1{font-size:28px}
       .edge-label-text{font-size:13px}
@@ -288,19 +288,19 @@
     const VIEW_W = 1200;
     const VIEW_H = 900;
     const nodes=[
-      {id:'x1',kind:'x',x:120,y:110,w:220,title:'준비물 반복어',sub:'티켓·신분증·물·보조배터리',detail:'<p><b>설명:</b> 팬들이 공연 전에 먼저 꺼내보는 준비물 리스트입니다.</p><p><a href="file:///Users/hongseong-yong/openclaw/BTS_X키워드수집/q1_bts_prepare.json">X 원본 열기</a></p>'},
-      {id:'x2',kind:'x',x:120,y:290,w:220,title:'반입규정 반복어',sub:'clear bag·짐검사·반입불가',detail:'<p><b>설명:</b> 공연장 규칙이 팬들의 구매 선택을 바꿉니다.</p><p><a href="file:///Users/hongseong-yong/openclaw/BTS_X키워드수집/q2_bts_items.json">X 원본 열기</a></p>'},
-      {id:'x3',kind:'x',x:120,y:480,w:220,title:'아미밤/응원봉 군집',sub:'아미밤·응원봉·AAA 건전지',detail:'<p><b>설명:</b> 이 노드는 물/생수보다 전력 유지와 몰입 지속성을 설명합니다.</p><p><a href="file:///Users/hongseong-yong/openclaw/BTS_X키워드수집/q3_armybomb.json">X 원본 열기</a></p>'},
-      {id:'x4',kind:'x',x:120,y:680,w:220,title:'대기열/체력관리 군집',sub:'물·핫팩·휴지·선풍기·약',detail:'<p><b>설명:</b> 생수와 김밥을 움직이는 가장 직접적인 원인입니다.</p>'},
-      {id:'c1',kind:'cluster',x:420,y:110,w:250,title:'입장/신분 의미군집',sub:'입장 가능 상태를 만드는 준비',detail:'<p>입장권과 신분증은 공연 소비의 출발선입니다.</p>'},
-      {id:'c2',kind:'cluster',x:420,y:290,w:250,title:'제약/압축 의미군집',sub:'규정이 소비 형태를 바꾼다',detail:'<p>clear bag과 짐검사는 선택을 작고 간편한 물품 쪽으로 몰아갑니다.</p>'},
-      {id:'c3',kind:'cluster',x:420,y:480,w:250,title:'응원/전원 의미군집',sub:'응원 장비와 전력 유지',detail:'<p>아미밤은 생수보다 전력과 현장 지속성을 설명합니다.</p>'},
-      {id:'c4',kind:'cluster',x:420,y:680,w:250,title:'대기/체력관리 의미군집',sub:'야외 체류가 보급 수요를 만든다',detail:'<p>물, 물티슈, 선풍기, 약, 간단한 먹거리는 줄서기와 체류시간 때문에 필요해집니다.</p>'},
-      {id:'o1',kind:'offline',x:835,y:135,w:220,title:'샌드위치/김밥',sub:'빠르게 먹고 이동 가능한 즉석식',detail:'<p><a target="_blank" href="https://search.naver.com/search.naver?query=BTS%20%EA%B3%B5%EC%97%B0%20%EC%83%81%EA%B6%8C%20%EB%A7%A4%EC%B6%9C">출처 열기</a></p>'},
-      {id:'o2',kind:'offline',x:835,y:330,w:220,title:'생수/음료',sub:'대기열 보급의 핵심',detail:'<p><a target="_blank" href="https://search.naver.com/search.naver?query=BTS%20%EA%B3%B5%EC%97%B0%20%EC%83%81%EA%B6%8C%20%EB%A7%A4%EC%B6%9C">출처 열기</a></p>'},
-      {id:'o3',kind:'offline',x:835,y:545,w:220,title:'K-라면/가공식품',sub:'간편 조달 + 기념 체험의 이중 구조',detail:'<p><a target="_blank" href="https://search.naver.com/search.naver?query=BTS%20%EA%B3%B5%EC%97%B0%20%EC%83%81%EA%B6%8C%20%EB%A7%A4%EC%B6%9C">출처 열기</a></p>'},
-      {id:'o4',kind:'offline',x:835,y:740,w:220,title:'키링/굿즈',sub:'감정과 정체성이 만든 기념 소비',detail:'<p><a target="_blank" href="https://search.naver.com/search.naver?query=BTS%20%EA%B3%B5%EC%97%B0%20%EC%83%81%EA%B6%8C%20%EB%A7%A4%EC%B6%9C">출처 열기</a></p>'},
-      {id:'s1',kind:'store',x:1080,y:440,w:235,title:'편의점 추가 배치/전면 진열',sub:'즉석식·생수·간편식·기념품을 앞쪽에',detail:'<p><b>최종 결론:</b> 팬들의 수요 언어와 현장 제약을 읽으면 편의점은 무엇을 더 많이, 더 앞에 놓아야 하는지 결정할 수 있습니다.</p>'}
+      {id:'x1',kind:'x',x:110,y:100,w:190,title:'준비물 반복어',sub:'티켓·신분증·물·보조배터리',detail:'<p><b>이야기 시작:</b> 공연이 다가오면 팬들의 타임라인에는 “티켓 챙겼지?”, “신분증 없으면 입장 안 되나?”, “보조배터리 가져가야 하나?” 같은 말이 먼저 떠오릅니다. 이 노드는 바로 그 출발 장면입니다. 아직 누가 무엇을 살지 확정되진 않았지만, 이미 팬들의 머릿속 체크리스트는 돌아가기 시작합니다.</p><p><b>의미 추출:</b> 수집된 글을 모아보면 이 군집은 단순한 준비물 나열이 아니라 <b>입장 가능 상태를 만들기 위한 사전 정리 언어</b>로 묶입니다. 즉 공연 직전의 불안을 줄이기 위한 확인 행동이 반복되는 것입니다.</p><p><b>현장 연결:</b> 이런 준비 언어는 공연장에 도착하기 전 마지막 보충 구매로도 이어집니다. 빠뜨린 물, 간단히 먹을 것, 충전 관련 물품을 주변 편의점에서 채우는 행동의 앞단 신호로 읽을 수 있습니다.</p><p><a href="file:///Users/hongseong-yong/openclaw/BTS_X키워드수집/q1_bts_prepare.json">X 원본 열기</a></p>'},
+      {id:'x2',kind:'x',x:110,y:270,w:190,title:'반입규정 반복어',sub:'clear bag·짐검사·반입불가',detail:'<p><b>이야기 장면:</b> 공연 준비에서 재미있는 점은, 사람들의 소비를 좌우하는 것이 꼭 취향만은 아니라는 것입니다. 규정이 강한 공연일수록 사람들은 “무엇을 좋아하나”보다 “무엇을 들고 들어갈 수 있나”를 먼저 따집니다.</p><p><b>의미 추출:</b> 이 군집은 <b>제약이 소비 형태를 압축하는 언어</b>로 읽힙니다. 가방 규정, 반입 제한, 검사 절차는 크고 복잡한 물건을 밀어내고, 작고 가볍고 빨리 소비할 수 있는 물품을 앞으로 끌어옵니다.</p><p><b>현장 연결:</b> 그래서 편의점 관점에서는 이런 규정 언어가 곧 간편식, 소형 음료, 즉시 소비형 상품의 수요 신호가 됩니다.</p><p><a href="file:///Users/hongseong-yong/openclaw/BTS_X키워드수집/q2_bts_items.json">X 원본 열기</a></p>'},
+      {id:'x3',kind:'x',x:110,y:450,w:190,title:'아미밤/응원봉 군집',sub:'아미밤·응원봉·AAA 건전지',detail:'<p><b>이야기 장면:</b> 공연장에 오는 사람들에게 응원봉은 단순 물건이 아니라 현장 참여권 같은 상징입니다. 불이 켜지지 않는 응원봉은 마치 축제 입구에서 표정이 굳는 순간과도 비슷합니다.</p><p><b>의미 추출:</b> 이 군집은 생수나 김밥처럼 바로 소비되는 품목보다 <b>응원 지속성과 전력 유지</b>를 설명하는 상징적 군집입니다. 공연 몰입을 계속 이어가기 위한 준비가 여기에 담겨 있습니다.</p><p><b>현장 연결:</b> 편의점 입장에서는 건전지, 보조 전력, 작은 보조 물품의 수요를 간접적으로 읽게 해주는 노드입니다.</p><p><a href="file:///Users/hongseong-yong/openclaw/BTS_X키워드수집/q3_armybomb.json">X 원본 열기</a></p>'},
+      {id:'x4',kind:'x',x:110,y:650,w:190,title:'대기열/체력관리 군집',sub:'물·핫팩·휴지·선풍기·약',detail:'<p><b>이야기 장면:</b> 팬들이 가장 현실적으로 몸으로 느끼는 순간은 줄을 서는 시간입니다. 덥거나 춥거나, 오래 기다리거나, 배고프거나, 목이 마른 그 시간에 사람들은 이성적으로 가장 단순한 선택을 합니다.</p><p><b>의미 추출:</b> 이 군집은 <b>현장 체류 시간이 보급형 소비를 만든다</b>는 사실을 보여줍니다. 물, 휴지, 핫팩, 선풍기, 간단한 먹을거리는 모두 ‘버티기 위한 소비’입니다.</p><p><b>현장 연결:</b> 그래서 이 노드는 생수, 음료, 김밥, 샌드위치 같은 편의점 핵심 매출과 가장 직접적으로 이어지는 출발점입니다.</p>'},
+      {id:'c1',kind:'cluster',x:385,y:100,w:210,title:'입장/신분 의미군집',sub:'입장 가능 상태를 만드는 준비',detail:'<p><b>군집 해석:</b> 이 묶음은 공연장 바깥에서 팬들이 스스로를 “입장 가능한 사람”으로 정리하는 단계입니다. 티켓, 신분증, 예약 정보는 모두 공연 경험의 첫 문을 여는 열쇠입니다.</p><p><b>왜 중요한가:</b> 이 군집은 아직 소비보다 확인 행동이 강하지만, 빠뜨린 물건을 현장에서 다시 채우게 만드는 긴장감을 형성합니다. 즉 사전 확인 언어가 마지막 순간의 오프라인 구매로 이어질 여지를 만듭니다.</p>'},
+      {id:'c2',kind:'cluster',x:385,y:270,w:210,title:'제약/압축 의미군집',sub:'규정이 소비 형태를 바꾼다',detail:'<p><b>군집 해석:</b> 이 노드는 공연장 규칙이 소비를 얼마나 강하게 디자인하는지 보여줍니다. 사람들의 선택은 취향보다 반입 가능성에 의해 정리됩니다.</p><p><b>이야기처럼 보면:</b> 큰 가방은 불안하고, 시간이 오래 걸리는 물건은 부담스럽고, 검사에 걸릴 수 있는 물건은 피하게 됩니다. 그러면 결국 작고 빨리 쓰고 버릴 수 있는 물건이 남습니다.</p><p><b>유통 의미:</b> 편의점은 바로 이 순간에 간편식과 소형 음료를 더 앞세울 이유를 얻습니다.</p>'},
+      {id:'c3',kind:'cluster',x:385,y:450,w:210,title:'응원/전원 의미군집',sub:'응원 장비와 전력 유지',detail:'<p><b>군집 해석:</b> 이 묶음은 공연 몰입의 에너지를 유지하려는 팬들의 행동을 보여줍니다. 응원봉과 건전지는 공연을 보는 장비가 아니라, 함께 참여하는 감정 장치에 가깝습니다.</p><p><b>시각화 포인트:</b> 이 군집은 생필품 소비와 직접 연결되지는 않지만, 현장 참여의 강도를 설명해주는 상징 노드입니다. 그래서 의미망 안에서 중요한 감정층을 담당합니다.</p>'},
+      {id:'c4',kind:'cluster',x:385,y:650,w:210,title:'대기/체력관리 의미군집',sub:'야외 체류가 보급 수요를 만든다',detail:'<p><b>군집 해석:</b> 이 노드는 전체 의미망의 핵심 축입니다. 공연을 기다리는 시간, 이동하는 시간, 버티는 시간이 길어질수록 사람들은 가장 실용적인 품목으로 이동합니다.</p><p><b>이야기처럼 보면:</b> 신나는 공연의 뒷면에는 오래 서 있는 다리, 마른 목, 허기, 날씨의 피로가 있습니다. 바로 이 현실이 편의점 수요를 만듭니다.</p><p><b>유통 의미:</b> 생수, 음료, 즉석식, 간편식, 작은 보조물품이 한꺼번에 살아나는 군집입니다.</p>'},
+      {id:'o1',kind:'offline',x:760,y:130,w:185,title:'샌드위치/김밥',sub:'빠르게 먹고 이동 가능한 즉석식',detail:'<p><b>의미:</b> 이 노드는 공연장 주변에서 가장 이해하기 쉬운 소비입니다. 빨리 먹고, 손에 덜 묻고, 이동하면서도 처리할 수 있어야 하기 때문입니다.</p><p><b>왜 뜨는가:</b> 반입 규정과 대기 시간이 동시에 작동하면 사람들은 긴 식사보다 즉석식을 고릅니다. 그래서 김밥과 샌드위치는 공연 전후의 대표 보충 식사가 됩니다.</p>'},
+      {id:'o2',kind:'offline',x:760,y:320,w:185,title:'생수/음료',sub:'대기열 보급의 핵심',detail:'<p><b>의미:</b> 이 노드는 의미망에서 가장 직관적인 결과물입니다. 오래 기다리는 군중이 있으면 가장 먼저 움직이는 것은 수분 보급 수요입니다.</p><p><b>이야기처럼 보면:</b> 줄을 서 있는 사람에게 물 한 병은 사치가 아니라 버티기 위한 최소 장비입니다. 그래서 생수와 음료는 공연 상권에서 거의 자동으로 앞줄에 등장합니다.</p>'},
+      {id:'o3',kind:'offline',x:760,y:530,w:185,title:'K-라면/가공식품',sub:'간편 조달 + 기념 체험의 이중 구조',detail:'<p><b>의미:</b> 이 노드는 재미있는 이중성을 가집니다. 한쪽에서는 빨리 배를 채우는 간편식이고, 다른 한쪽에서는 한국 공연 문화를 체험하는 기념 소비이기도 합니다.</p><p><b>읽는 포인트:</b> 즉 이 품목군은 실용성과 감정 소비가 겹치는 지점입니다. 그래서 단순한 배고픔 이상의 의미를 품고 있습니다.</p>'},
+      {id:'o4',kind:'offline',x:760,y:740,w:185,title:'키링/굿즈',sub:'감정과 정체성이 만든 기념 소비',detail:'<p><b>의미:</b> 공연이 끝나도 남는 것은 기억입니다. 키링과 굿즈는 그 기억을 손에 잡히는 물건으로 바꾸는 방식입니다.</p><p><b>이야기처럼 보면:</b> 사람들은 필요한 것만 사지 않습니다. 오늘의 기분을 오래 붙잡아 둘 작은 상징도 함께 삽니다. 이 노드는 바로 그런 감정 소비를 설명합니다.</p>'},
+      {id:'s1',kind:'store',x:1020,y:430,w:205,title:'편의점 추가 배치/전면 진열',sub:'즉석식·생수·간편식·기념품을 앞쪽에',detail:'<p><b>마지막 결론:</b> 팬들의 온라인 언어는 결국 오프라인 진열 전략으로 번역됩니다. 무엇이 반복해서 언급되는지, 무엇이 불안과 기대를 만들고, 무엇이 줄 서는 시간을 버티게 하는지를 읽으면 편의점은 진열을 바꿀 수 있습니다.</p><p><b>이야기의 결말:</b> 그래서 이 의미망의 끝은 단순한 판매가 아닙니다. 공연을 기다리는 사람들의 몸과 감정이 어떻게 상품 진열을 움직이는지 보여주는 장면입니다. 생수는 앞으로 나오고, 즉석식은 손 닿기 쉬운 곳에 쌓이고, 작은 기념품은 눈에 잘 띄는 위치를 차지합니다.</p>'}
     ];
     const edges=[
       ['x1','c1','입장 준비'],
@@ -313,7 +313,7 @@
       ['c4','o2','수분 보급'],
       ['c4','o3','현장 보충'],
       ['c4','o4','기념 소비'],
-      ['c3','s1','전력 수요'],
+      ['c3','s1','전력 수요','soft'],
       ['o1','s1','즉석식 배치'],
       ['o2','s1','생수 전진'],
       ['o3','s1','간편식 확대'],
@@ -349,15 +349,15 @@
       const start=nodeAnchor(from, from.x < to.x ? 'right' : 'left');
       const end=nodeAnchor(to, from.x < to.x ? 'left' : 'right');
       const deltaY=end.y-start.y;
-      const dx=Math.max(92, Math.abs(end.x-start.x)*0.30);
-      const curveY=Math.max(0, Math.abs(deltaY)*0.08);
+      const dx=Math.max(120, Math.abs(end.x-start.x)*0.36);
+      const curveY=Math.max(8, Math.abs(deltaY)*0.14);
       const d=`M ${start.x} ${start.y} C ${start.x+dx} ${start.y+curveY}, ${end.x-dx} ${end.y-curveY}, ${end.x} ${end.y}`;
       const path=el('path',{d, class:tone==='soft' ? 'soft' : ''});
       svg.appendChild(path);
 
-      const mx=start.x + (end.x-start.x)*0.53;
-      const my=start.y + (end.y-start.y)*0.50 - (Math.abs(deltaY)>110 ? 22 : 16);
-      const w=Math.max(92, label.length*16 + 10);
+      const mx=start.x + (end.x-start.x)*0.50;
+      const my=start.y + (end.y-start.y)*0.50 - (Math.abs(deltaY)>110 ? 26 : 18);
+      const w=Math.max(92, label.length*16 + 14);
       const g=el('g',{});
       const rect=el('rect',{x:mx-w/2,y:my-17,width:w,height:30,rx:15,ry:15,class:'edge-label-bg'});
       const text=el('text',{x:mx,y:my+4,'text-anchor':'middle',class:'edge-label-text'});
