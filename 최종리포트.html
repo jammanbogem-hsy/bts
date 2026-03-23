@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>BTS 공연 상권 데이터 매핑</title>
+  <style>
+    :root {
+      --bg: #0f1221;
+      --panel: #171a2b;
+      --panel-2: #1f2440;
+      --text: #eef2ff;
+      --muted: #aeb8d9;
+      --query: #7c3aed;
+      --result: #06b6d4;
+      --item: #22c55e;
+      --link: #64748b;
+      --accent: #f59e0b;
+      --border: #2b3357;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Noto Sans KR", sans-serif;
+      background: linear-gradient(180deg, #0b1020, #11162b 40%, #0b1020);
+      color: var(--text);
+    }
+    header {
+      padding: 28px 24px 16px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(10,12,24,0.85);
+      position: sticky;
+      top: 0;
+      backdrop-filter: blur(8px);
+      z-index: 10;
+    }
+    h1 { margin: 0 0 8px; font-size: 28px; }
+    .sub { color: var(--muted); line-height: 1.5; }
+    .wrap {
+      display: grid;
+      grid-template-columns: 1.4fr 0.9fr;
+      gap: 20px;
+      padding: 20px;
+    }
+    .panel {
+      background: rgba(23,26,43,0.92);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      box-shadow: 0 16px 40px rgba(0,0,0,0.28);
+      overflow: hidden;
+    }
+    .panel h2 {
+      margin: 0;
+      padding: 16px 18px;
+      font-size: 18px;
+      border-bottom: 1px solid var(--border);
+      background: rgba(255,255,255,0.02);
+    }
+    #vizWrap { padding: 8px; }
+    svg { width: 100%; height: 720px; display: block; }
+    .legend {
+      display: flex; gap: 14px; flex-wrap: wrap;
+      padding: 0 18px 16px;
+      color: var(--muted); font-size: 14px;
+    }
+    .legend span { display: inline-flex; align-items: center; gap: 8px; }
+    .dot { width: 12px; height: 12px; border-radius: 999px; display: inline-block; }
+    .cards { padding: 14px; display: grid; gap: 12px; }
+    .card {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+    }
+    .card h3 { margin: 0 0 8px; font-size: 16px; }
+    .meta, .source { color: var(--muted); font-size: 13px; line-height: 1.5; }
+    .tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .tag {
+      font-size: 12px; padding: 6px 10px; border-radius: 999px;
+      background: var(--panel-2); border: 1px solid var(--border);
+      color: var(--text);
+    }
+    .trust { color: var(--accent); font-weight: 600; }
+    a { color: #93c5fd; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .footer {
+      padding: 0 20px 28px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+    .node-label { fill: #eef2ff; font-size: 12px; pointer-events: none; }
+    .node-sub { fill: #aeb8d9; font-size: 10px; pointer-events: none; }
+    .edge-label { fill: #94a3b8; font-size: 10px; }
+    @media (max-width: 1100px) {
+      .wrap { grid-template-columns: 1fr; }
+      svg { height: 620px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>BTS 공연 상권 데이터 매핑</h1>
+    <div class="sub">
+      검색어 → 검색 결과/기사 스니펫 → 실제로 읽힌 품목/상권 데이터가 어떻게 연결되는지 한눈에 보는 로컬 시각화 페이지입니다.<br>
+      왼쪽은 연결 지도, 오른쪽은 근거 카드입니다.
+    </div>
+  </header>
+
+  <div class="wrap">
+    <section class="panel">
+      <h2>연결 시각화</h2>
+      <div id="vizWrap">
+        <svg viewBox="0 0 980 720" aria-label="검색어와 결과와 품목 간 연결 지도"></svg>
+      </div>
+      <div class="legend">
+        <span><i class="dot" style="background:var(--query)"></i> 검색어</span>
+        <span><i class="dot" style="background:var(--result)"></i> 검색 결과 / 기사 근거</span>
+        <span><i class="dot" style="background:var(--item)"></i> 품목 / 상권 데이터</span>
+      </div>
+    </section>
+
+    <aside class="panel">
+      <h2>근거 카드</h2>
+      <div class="cards" id="cards"></div>
+    </aside>
+  </div>
+
+  <div class="footer">
+    저장 경로: <code>/Users/hongseong-yong/openclaw/BTS공연상권데이터/최종리포트.html</code><br>
+    데이터 경로: <code>/Users/hongseong-yong/openclaw/BTS공연상권데이터/최종데이터.json</code><br>
+    주의: 본 페이지는 공개 검색 결과와 기사/스니펫 기반으로 만든 연구용 매핑입니다. 일부 수치는 스니펫 기반이므로 신뢰도 구분을 함께 보시는 것이 좋습니다.
+  </div>
+
+  <script>
+    const data = {
+      queries: [
+        { id: 'q1', label: 'BTS 공연 편의점 추가 발주', type: 'query', x: 140, y: 150, color: getComputedStyle(document.documentElement).getPropertyValue('--query') },
+        { id: 'q2', label: 'BTS 공연 편의점 매출', type: 'query', x: 140, y: 320, color: getComputedStyle(document.documentElement).getPropertyValue('--query') },
+        { id: 'q3', label: 'BTS 공연 상권 매출', type: 'query', x: 140, y: 500, color: getComputedStyle(document.documentElement).getPropertyValue('--query') }
+      ],
+      results: [
+        { id: 'r1', label: 'SBS 스니펫', sub: '샌드위치·김밥 / 매출 2배', type: 'result', x: 490, y: 120, color: getComputedStyle(document.documentElement).getPropertyValue('--result') },
+        { id: 'r2', label: 'YTN 스니펫', sub: '키링 190% / K-라면', type: 'result', x: 490, y: 270, color: getComputedStyle(document.documentElement).getPropertyValue('--result') },
+        { id: 'r3', label: '커뮤니티/블로그 스니펫', sub: '음료박스·생수', type: 'result', x: 490, y: 430, color: getComputedStyle(document.documentElement).getPropertyValue('--result') },
+        { id: 'r4', label: '상권 전체 소비 증가', sub: '카페·패션·호텔', type: 'result', x: 490, y: 590, color: getComputedStyle(document.documentElement).getPropertyValue('--result') }
+      ],
+      items: [
+        { id: 'i1', label: '샌드위치', type: 'item', x: 830, y: 80, color: getComputedStyle(document.documentElement).getPropertyValue('--item') },
+        { id: 'i2', label: '김밥', type: 'item', x: 830, y: 150, color: getComputedStyle(document.documentElement).getPropertyValue('--item') },
+        { id: 'i3', label: '음료', type: 'item', x: 830, y: 240, color: getComputedStyle(document.documentElement).getPropertyValue('--item') },
+        { id: 'i4', label: '생수', type: 'item', x: 830, y: 310, color: getComputedStyle(document.documentElement).getPropertyValue('--item') },
+        { id: 'i5', label: 'K-라면', type: 'item', x: 830, y: 390, color: getComputedStyle(document.documentElement).getPropertyValue('--item') },
+        { id: 'i6', label: '가공식품', type: 'item', x: 830, y: 460, color: getComputedStyle(document.documentElement).getPropertyValue('--item') },
+        { id: 'i7', label: '키링', type: 'item', x: 830, y: 530, color: getComputedStyle(document.documentElement).getPropertyValue('--item') },
+        { id: 'i8', label: '호텔/숙박', type: 'item', x: 830, y: 600, color: getComputedStyle(document.documentElement).getPropertyValue('--item') },
+        { id: 'i9', label: '패션/뷰티', type: 'item', x: 830, y: 660, color: getComputedStyle(document.documentElement).getPropertyValue('--item') }
+      ],
+      links: [
+        ['q3','r1','검색결과'],['q3','r2','검색결과'],['q3','r3','검색결과'],['q3','r4','검색결과'],
+        ['q1','r3','검색결과'],['q2','r1','검색결과'],
+        ['r1','i1','품목'],['r1','i2','품목'],['r2','i5','품목'],['r2','i6','품목'],['r2','i7','품목'],
+        ['r3','i3','품목'],['r3','i4','품목'],['r4','i8','상권'],['r4','i9','상권']
+      ],
+      cards: [
+        {
+          title: 'SBS 스니펫: 편의점 직원 인터뷰',
+          body: '광화문 공연 특수를 노린 편의점들이 보랏빛으로 단장했고, 매출은 평소 주말보다 2배 정도. 샌드위치와 김밥 수요가 특히 언급됨.',
+          trust: '중간~높음',
+          source: 'SBS 뉴스 검색 결과 스니펫',
+          url: 'https://search.naver.com/search.naver?query=BTS%20%EA%B3%B5%EC%97%B0%20%EC%83%81%EA%B6%8C%20%EB%A7%A4%EC%B6%9C',
+          tags: ['주말보다 2배', '샌드위치', '김밥']
+        },
+        {
+          title: 'YTN 스니펫: 유통가 총력전',
+          body: 'BTS 키링 등 상품 매출이 전주 대비 190% 상승했고, K-라면·가공식품을 전면에 내세우며 편의점도 준비 완료라고 언급됨.',
+          trust: '중간',
+          source: 'YTN 관련 검색 결과 스니펫',
+          url: 'https://search.naver.com/search.naver?query=BTS%20%EA%B3%B5%EC%97%B0%20%EC%83%81%EA%B6%8C%20%EB%A7%A4%EC%B6%9C',
+          tags: ['키링 190%', 'K-라면', '가공식품']
+        },
+        {
+          title: '커뮤니티/블로그성 스니펫',
+          body: '음료 박스를 매장 앞에 쌓아둘 정도였고, 일부 2차 글에서는 생수 9배·편의점 매출 5배 등의 표현이 반복됨.',
+          trust: '낮음~중간',
+          source: '검색 결과 스니펫 및 2차 정리 글',
+          url: 'https://search.naver.com/search.naver?query=BTS%20%EA%B3%B5%EC%97%B0%20%EC%83%81%EA%B6%8C%20%EB%A7%A4%EC%B6%9C',
+          tags: ['음료박스', '생수 9배', '편의점 매출 5배']
+        },
+        {
+          title: '상권 전체 소비 증가',
+          body: '명동·광화문 일대에서 편의점뿐 아니라 음식점, 카페, 패션·뷰티, 호텔/숙박 수요까지 전반적으로 증가했다는 흐름이 반복 확인됨.',
+          trust: '중간',
+          source: '복수 매체 검색 스니펫',
+          url: 'https://search.naver.com/search.naver?query=BTS%20%EA%B3%B5%EC%97%B0%20%EC%83%81%EA%B6%8C%20%EB%A7%A4%EC%B6%9C',
+          tags: ['명동·광화문', '패션·뷰티', '호텔 만실']
+        }
+      ]
+    };
+
+    const svg = document.querySelector('svg');
+    const NS = 'http://www.w3.org/2000/svg';
+    const nodes = [...data.queries, ...data.results, ...data.items];
+    const map = Object.fromEntries(nodes.map(n => [n.id, n]));
+
+    function el(name, attrs = {}) {
+      const node = document.createElementNS(NS, name);
+      for (const [k, v] of Object.entries(attrs)) node.setAttribute(k, v);
+      return node;
+    }
+
+    function lineWithCurve(a, b, label) {
+      const mx = (a.x + b.x) / 2;
+      const path = el('path', {
+        d: `M ${a.x} ${a.y} C ${mx} ${a.y}, ${mx} ${b.y}, ${b.x} ${b.y}`,
+        fill: 'none', stroke: getComputedStyle(document.documentElement).getPropertyValue('--link'),
+        'stroke-width': '2', opacity: '0.85'
+      });
+      svg.appendChild(path);
+      const text = el('text', { x: mx, y: (a.y + b.y) / 2 - 6, class: 'edge-label', 'text-anchor': 'middle' });
+      text.textContent = label;
+      svg.appendChild(text);
+    }
+
+    data.links.forEach(([from, to, label]) => lineWithCurve(map[from], map[to], label));
+
+    nodes.forEach(n => {
+      const g = el('g');
+      const width = n.type === 'result' ? 190 : 150;
+      const height = n.type === 'result' ? 64 : 52;
+      const rect = el('rect', {
+        x: n.x - width / 2,
+        y: n.y - height / 2,
+        rx: 16,
+        ry: 16,
+        width,
+        height,
+        fill: n.color.trim(),
+        opacity: n.type === 'result' ? '0.88' : '0.95',
+        stroke: '#ffffff22'
+      });
+      const t1 = el('text', { x: n.x, y: n.y - (n.type === 'result' ? 6 : 0), 'text-anchor': 'middle', class: 'node-label' });
+      t1.textContent = n.label;
+      g.appendChild(rect);
+      g.appendChild(t1);
+      if (n.sub) {
+        const t2 = el('text', { x: n.x, y: n.y + 14, 'text-anchor': 'middle', class: 'node-sub' });
+        t2.textContent = n.sub;
+        g.appendChild(t2);
+      }
+      svg.appendChild(g);
+    });
+
+    const cards = document.getElementById('cards');
+    data.cards.forEach(card => {
+      const div = document.createElement('div');
+      div.className = 'card';
+      div.innerHTML = `
+        <h3>${card.title}</h3>
+        <div class="meta">${card.body}</div>
+        <div class="meta" style="margin-top:8px;">신뢰도: <span class="trust">${card.trust}</span></div>
+        <div class="source" style="margin-top:8px;">출처: ${card.source}<br><a href="${card.url}" target="_blank" rel="noopener noreferrer">${card.url}</a></div>
+        <div class="tags">${card.tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>
+      `;
+      cards.appendChild(div);
+    });
+  </script>
+</body>
+</html>

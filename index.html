@@ -1,0 +1,356 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>BTS 공연 상권·X 데이터 스토리맵</title>
+  <style>
+    :root {
+      --lg-bg-color: rgba(255, 255, 255, 0.25);
+      --lg-highlight: rgba(255, 255, 255, 0.78);
+      --lg-text: #21314d;
+      --lg-red: #fb4268;
+      --lg-grey: #55627d;
+      --x:#73d5ea;
+      --cluster:#c8b2f1;
+      --offline:#aadfb5;
+      --store:#f6b6cb;
+      --line:#afbdd8;
+      --shadow: 0 16px 40px rgba(84, 102, 146, 0.16), 0 4px 12px rgba(84, 102, 146, 0.10);
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0}
+    body {
+      min-height:100vh;
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans KR",sans-serif;
+      color:var(--lg-text);
+      background:
+        radial-gradient(circle at 18% 18%, rgba(255,255,255,.5), transparent 18%),
+        radial-gradient(circle at 82% 24%, rgba(255,255,255,.3), transparent 16%),
+        linear-gradient(135deg, rgba(115,213,234,.22), rgba(200,178,241,.20), rgba(170,223,181,.18)),
+        url("./shiba-bg.jpg") center/cover fixed;
+      animation: bg-move 14s ease-in-out infinite alternate;
+    }
+    @keyframes bg-move {
+      from { background-position: center center, center center, center center, center center; }
+      to { background-position: 20% 16%, 84% 22%, center top, center top; }
+    }
+    body::before{
+      content:""; position:fixed; inset:0; pointer-events:none;
+      background:linear-gradient(180deg, rgba(248,251,255,.40), rgba(245,249,255,.20) 35%, rgba(241,246,255,.46));
+      backdrop-filter:saturate(110%);
+      -webkit-backdrop-filter:saturate(110%);
+    }
+    a{color:#6287c9;text-decoration:none}
+    a:hover{text-decoration:underline}
+
+    .page{position:relative; z-index:1; padding:22px; display:grid; gap:20px}
+
+    .glass-container {
+      position: relative;
+      display: flex;
+      align-items: center;
+      background: transparent;
+      border-radius: 32px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      color: var(--lg-text);
+      transition: transform .28s ease, box-shadow .28s ease;
+      isolation:isolate;
+    }
+    .glass-container:hover { transform: translateY(-1px); }
+    .node:hover { transform: scale(.90) translateY(-2px); }
+    .glass-filter,.glass-overlay,.glass-specular {
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      pointer-events:none;
+    }
+    .glass-filter {
+      z-index: 0;
+      backdrop-filter: blur(12px) saturate(125%);
+      -webkit-backdrop-filter: blur(12px) saturate(125%);
+      filter: saturate(120%) brightness(1.05);
+    }
+    .glass-overlay {
+      z-index: 1;
+      background:
+        linear-gradient(180deg, rgba(255,255,255,.28), rgba(255,255,255,.18) 30%, rgba(255,255,255,.12) 100%),
+        var(--lg-bg-color);
+    }
+    .glass-specular {
+      z-index: 2;
+      box-shadow:
+        inset 1px 1px 0 var(--lg-highlight),
+        inset 0 0 8px rgba(255,255,255,.45),
+        inset 0 -1px 0 rgba(255,255,255,.18);
+    }
+    .glass-content {
+      position: relative;
+      z-index: 3;
+      width:100%;
+    }
+
+    .header{padding:22px 24px}
+    h1{margin:0 0 8px; font-size:34px; letter-spacing:-.03em}
+    .sub{margin:0; line-height:1.72; color:#52627f; font-size:15px}
+
+    .hero{display:grid; grid-template-columns:1.28fr .82fr; gap:18px; align-items:stretch}
+    .hero-left{padding:18px; display:grid; gap:14px}
+    .eyebrow{
+      display:inline-flex; align-items:center; gap:8px; width:max-content;
+      padding:8px 12px; border-radius:999px;
+      background:rgba(255,255,255,.28); border:1px solid rgba(255,255,255,.42);
+      box-shadow: inset 1px 1px 0 rgba(255,255,255,.8);
+      color:#5c6a86; font-size:12px;
+    }
+    .hero-title{margin:0; font-size:30px; line-height:1.2}
+    .hero-desc{margin:0; color:#566681; line-height:1.76}
+
+    .summary-row{display:grid; grid-template-columns:repeat(4,1fr); gap:12px}
+    .mini .glass-content{padding:14px}
+    .mini .k{font-size:12px;color:#667692}
+    .mini .v{font-size:24px;font-weight:800;margin-top:8px}
+
+    .map-wrap{
+      position:relative;
+      height:780px;
+      border-radius:28px;
+      overflow:hidden;
+      background:
+        radial-gradient(circle at 20% 18%, rgba(255,255,255,.30), transparent 16%),
+        radial-gradient(circle at 82% 30%, rgba(255,255,255,.18), transparent 18%),
+        linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.04));
+      border:1px solid rgba(255,255,255,.28);
+    }
+    .grid-layer{
+      position:absolute; inset:0;
+      background-image:
+        linear-gradient(rgba(255,255,255,.18) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.18) 1px, transparent 1px);
+      background-size: 36px 36px;
+      opacity:.32;
+      mask-image: linear-gradient(180deg, rgba(0,0,0,.95), rgba(0,0,0,.55));
+    }
+    .connections{position:absolute; inset:0; width:100%; height:100%; pointer-events:none}
+    .connections path{
+      fill:none; stroke:var(--line); stroke-width:2.5; opacity:.72;
+      stroke-linecap:round;
+    }
+    .connections path.soft{stroke-width:1.3; opacity:.30}
+    .connections text{fill:#8b99b6; font-size:11px}
+
+    .node{
+      position:absolute;
+      min-height:78px;
+      padding:10px;
+      cursor:pointer;
+      transform:scale(.90);
+      transform-origin:top left;
+    }
+    .node .glass-content{padding:12px 14px}
+    .node-title{font-size:14px; font-weight:800; margin:0 0 6px; color:#263654; line-height:1.3}
+    .node-sub{font-size:12px; color:#647492; line-height:1.45}
+    .node[data-kind="x"]{width:220px}
+    .node[data-kind="cluster"]{width:252px}
+    .node[data-kind="offline"]{width:220px}
+    .node[data-kind="store"]{width:230px}
+    .node[data-kind="x"] .glass-overlay{background:linear-gradient(180deg, rgba(255,255,255,.30), rgba(255,255,255,.13)), color-mix(in srgb, var(--x) 34%, white 66%)}
+    .node[data-kind="cluster"] .glass-overlay{background:linear-gradient(180deg, rgba(255,255,255,.30), rgba(255,255,255,.13)), color-mix(in srgb, var(--cluster) 36%, white 64%)}
+    .node[data-kind="offline"] .glass-overlay{background:linear-gradient(180deg, rgba(255,255,255,.30), rgba(255,255,255,.13)), color-mix(in srgb, var(--offline) 34%, white 66%)}
+    .node[data-kind="store"] .glass-overlay{background:linear-gradient(180deg, rgba(255,255,255,.30), rgba(255,255,255,.13)), color-mix(in srgb, var(--store) 38%, white 62%)}
+
+    .legend{display:flex; gap:14px; flex-wrap:wrap; color:#61708d; font-size:14px; padding:0 2px}
+    .dot{width:12px; height:12px; border-radius:999px; display:inline-block; box-shadow:0 0 16px rgba(255,255,255,.28)}
+
+    .hero-right{display:grid; gap:12px; align-content:start}
+    .story-card .glass-content{padding:16px}
+    .story-card h3{margin:0 0 8px; font-size:18px}
+    .story-card p{margin:0; line-height:1.72; color:#55647f; font-size:14px}
+
+    .grid{display:grid; grid-template-columns:1fr .92fr; gap:20px}
+    .panel-title{padding:16px 18px; border-bottom:1px solid rgba(255,255,255,.18); font-size:18px; font-weight:800; position:relative; z-index:3}
+    .panel-body{padding:16px; position:relative; z-index:3}
+    .cards{display:grid; gap:12px}
+    .card .glass-content{padding:15px}
+    .card h3{margin:0 0 8px; font-size:16px}
+    .meta{font-size:13px; line-height:1.68; color:#596986}
+    .tags{display:flex; flex-wrap:wrap; gap:8px; margin-top:10px}
+    .tag{padding:6px 10px; border-radius:999px; font-size:12px; background:rgba(255,255,255,.26); border:1px solid rgba(255,255,255,.44)}
+
+    .modalBg{position:fixed; inset:0; background:rgba(237,243,255,.36); display:none; align-items:center; justify-content:center; z-index:100; padding:20px; backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px)}
+    .modal{max-width:820px; width:100%}
+    .modal-head,.modal-body{position:relative; z-index:3}
+    .modal-head{padding:18px 20px; border-bottom:1px solid rgba(255,255,255,.18)}
+    .modal-body{padding:18px 20px; max-height:70vh; overflow:auto}
+    .closeBtn{float:right; padding:8px 12px; border-radius:12px; border:1px solid rgba(255,255,255,.45); background:rgba(255,255,255,.28); cursor:pointer}
+
+    @media (max-width:1280px){
+      .hero{grid-template-columns:1fr}
+      .grid{grid-template-columns:1fr}
+      .summary-row{grid-template-columns:repeat(2,1fr)}
+      .map-wrap{height:1040px}
+    }
+    @media (max-width:760px){
+      .summary-row{grid-template-columns:1fr}
+      .map-wrap{height:1280px}
+      .header{padding:18px}
+      h1{font-size:28px}
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header class="glass-container header">
+      <div class="glass-filter"></div><div class="glass-overlay"></div><div class="glass-specular"></div>
+      <div class="glass-content">
+        <h1>BTS 공연이 열리면, 왜 편의점은 생수와 김밥을 더 꺼내놓을까?</h1>
+        <p class="sub">이 화면은 <b>공연과 편의점의 데이터 연결 인사이트</b>를 직관적으로 읽을 수 있도록 구성했습니다. 오른쪽 설명을 먼저 읽고, 왼쪽 의미지도를 보면 <b>팬들의 준비 행동이 어떻게 오프라인 소비와 추가 배치로 이어지는지</b> 한눈에 따라갈 수 있습니다.</p>
+      </div>
+    </header>
+
+    <section class="hero">
+      <div class="glass-container hero-left">
+        <div class="glass-filter"></div><div class="glass-overlay"></div><div class="glass-specular"></div>
+        <div class="glass-content">
+          <div class="eyebrow">메인 히어로 · HTML liquid glass node map</div>
+          <h2 class="hero-title">팬들의 준비 언어가, 편의점의 진열 전략이 되는 순간</h2>
+          <p class="hero-desc">BTS 공연을 앞두고 팬들은 X에서 티켓, 신분증, 아미밤, 물, 보조배터리, 대기열 같은 키워드를 반복합니다. 이 말들은 단순 후기나 준비물 체크가 아니라 공연장 주변 편의점이 무엇을 더 전면에 배치해야 하는지 알려주는 수요 신호입니다.</p>
+
+          <div class="summary-row">
+            <div class="glass-container mini"><div class="glass-filter"></div><div class="glass-overlay"></div><div class="glass-specular"></div><div class="glass-content"><div class="k">메인 X 쿼리</div><div class="v">3개</div></div></div>
+            <div class="glass-container mini"><div class="glass-filter"></div><div class="glass-overlay"></div><div class="glass-specular"></div><div class="glass-content"><div class="k">내부 X Search 호출</div><div class="v">36회</div></div></div>
+            <div class="glass-container mini"><div class="glass-filter"></div><div class="glass-overlay"></div><div class="glass-specular"></div><div class="glass-content"><div class="k">핵심 의미군집</div><div class="v">5개</div></div></div>
+            <div class="glass-container mini"><div class="glass-filter"></div><div class="glass-overlay"></div><div class="glass-specular"></div><div class="glass-content"><div class="k">핵심 결과 노드</div><div class="v">5개</div></div></div>
+          </div>
+
+          <div class="map-wrap" id="mapWrap">
+            <div class="grid-layer"></div>
+            <svg class="connections" viewBox="0 0 1200 940" preserveAspectRatio="none" aria-hidden="true">
+              <path d="M 218 120 C 300 120, 350 120, 444 120"></path>
+              <path class="soft" d="M 218 120 C 300 200, 350 330, 444 760"></path>
+              <path d="M 218 340 C 300 340, 350 340, 444 340"></path>
+              <path d="M 218 570 C 300 570, 350 570, 444 570"></path>
+              <path d="M 218 800 C 300 800, 350 800, 444 800"></path>
+              <path d="M 696 120 C 810 150, 870 170, 956 180"></path>
+              <path d="M 696 340 C 810 290, 870 220, 956 180"></path>
+              <path d="M 696 570 C 835 530, 930 520, 1080 500"></path>
+              <path d="M 696 800 C 810 710, 870 560, 956 390"></path>
+              <path d="M 696 800 C 810 810, 870 820, 956 830"></path>
+              <path d="M 1176 180 C 1210 250, 1210 360, 1176 500"></path>
+              <path d="M 1176 390 C 1210 420, 1210 450, 1176 500"></path>
+              <path d="M 1176 620 C 1210 585, 1210 545, 1176 500"></path>
+              <path d="M 1176 830 C 1210 720, 1210 620, 1176 500"></path>
+              <text x="333" y="106">입장 준비</text>
+              <text x="334" y="326">반입 제약</text>
+              <text x="334" y="556">응원 지속성</text>
+              <text x="332" y="786">체류 압력</text>
+              <text x="838" y="166">빠른 식사</text>
+              <text x="833" y="382">수분 보급</text>
+              <text x="836" y="822">기념 소비</text>
+            </svg>
+          </div>
+
+          <div class="legend">
+            <span><i class="dot" style="background:var(--x)"></i> X 데이터</span>
+            <span><i class="dot" style="background:var(--cluster)"></i> 의미군집</span>
+            <span><i class="dot" style="background:var(--offline)"></i> 오프라인 품목</span>
+            <span><i class="dot" style="background:var(--store)"></i> 편의점 운영 대응</span>
+          </div>
+        </div>
+      </div>
+
+      <aside class="hero-right">
+        <div class="glass-container story-card"><div class="glass-filter"></div><div class="glass-overlay"></div><div class="glass-specular"></div><div class="glass-content"><h3>공연 전 데이터가 말해주는 것</h3><p>팬들은 먼저 티켓, 신분증, 물, 아미밤 같은 준비물을 챙깁니다. 이 데이터는 단순 준비물 목록이 아니라 현장에서 어떤 수요가 먼저 생길지 보여주는 초기 신호입니다.</p></div></div>
+        <div class="glass-container story-card"><div class="glass-filter"></div><div class="glass-overlay"></div><div class="glass-specular"></div><div class="glass-content"><h3>제약 조건이 수요를 바꾸는 방식</h3><p>clear bag, 짐검사, 반입불가 규정이 강할수록 사람들은 크고 복잡한 물건보다 작고 빨리 들고 갈 수 있는 품목을 선호합니다. 이때 편의점 소비는 간편식과 소형 음료로 압축됩니다.</p></div></div>
+        <div class="glass-container story-card"><div class="glass-filter"></div><div class="glass-overlay"></div><div class="glass-specular"></div><div class="glass-content"><h3>대기열이 만드는 편의점 수요</h3><p>줄을 오래 서야 하는 사람은 생수와 음료를 찾고, 빨리 먹고 움직여야 하는 사람은 김밥과 샌드위치를 찾습니다. 즉 대기열 데이터는 보급형 소비의 핵심 레이어입니다.</p></div></div>
+        <div class="glass-container story-card"><div class="glass-filter"></div><div class="glass-overlay"></div><div class="glass-specular"></div><div class="glass-content"><h3>공연과 편의점의 데이터 연결 인사이트</h3><p><b>X의 팬 행동 데이터는 편의점이 무엇을, 왜, 어디에 더 놓아야 하는지 알려주는 수요 신호</b>입니다. 왼쪽 의미지도는 그 신호가 실제 오프라인 소비와 추가 배치로 이어지는 구조를 보여줍니다.</p></div></div>
+      </aside>
+    </section>
+
+    <div class="grid">
+      <section class="glass-container">
+        <div class="glass-filter"></div><div class="glass-overlay"></div><div class="glass-specular"></div>
+        <div class="panel-title">발표용 인사이트 카드</div>
+        <div class="panel-body cards" id="cards"></div>
+      </section>
+      <aside class="glass-container">
+        <div class="glass-filter"></div><div class="glass-overlay"></div><div class="glass-specular"></div>
+        <div class="panel-title">설명 포인트</div>
+        <div class="panel-body cards" id="subcards"></div>
+      </aside>
+    </div>
+  </div>
+
+  <div class="modalBg" id="modalBg">
+    <div class="glass-container modal">
+      <div class="glass-filter"></div><div class="glass-overlay"></div><div class="glass-specular"></div>
+      <div class="modal-head"><button class="closeBtn" id="closeModal">닫기</button><h2 id="modalTitle">상세 정보</h2></div>
+      <div class="modal-body" id="modalBody"></div>
+    </div>
+  </div>
+
+  <script>
+    const cards=[
+      {title:'한 문장 요약',body:'팬들이 X에서 남기는 준비물 언어는 편의점이 무엇을 더 쌓아야 하는지 알려주는 사전 수요 신호입니다.',tags:['수요 신호','팬 행동']},
+      {title:'가장 직접적인 연결',body:'대기열/체력관리 군집은 생수·음료·김밥·샌드위치와 가장 직접적으로 이어집니다.',tags:['대기열','보급형 소비']},
+      {title:'가장 자주 오해되는 연결',body:'아미밤/응원봉은 생수와 직접 연결되는 노드가 아니라, 전력 유지와 공연 몰입 지속성을 설명하는 노드입니다.',tags:['전원/응원','몰입']}
+    ];
+    const subcards=[
+      {title:'가공식품의 두 얼굴',body:'K-라면/가공식품은 굿즈성 체험 소비이기도 하고, 입장 전후 빠르게 살 수 있는 간편식이기도 합니다.',tags:['간편식','기념 체험']},
+      {title:'편의점 관점 결론',body:'편의점은 팬들의 수요를 읽고 생수는 박스 단위, 즉석식은 앞 진열, 기념품은 눈에 잘 띄는 자리로 움직일 수 있습니다.',tags:['추가 배치','전면 진열']},
+      {title:'해석 순서',body:'입장 준비 → 반입 규정 → 대기열 → 오프라인 품목 → 추가 배치 순서로 보면 전체 흐름이 자연스럽게 보입니다.',tags:['스토리 흐름']}
+    ];
+    const nodes=[
+      {id:'x1',kind:'x',x:36,y:70,title:'준비물 반복어',sub:'티켓·신분증·물·보조배터리',detail:'<p><b>설명:</b> 팬들이 공연 전에 먼저 꺼내보는 준비물 리스트입니다.</p><p><a href="file:///Users/hongseong-yong/openclaw/BTS_X키워드수집/q1_bts_prepare.json">X 원본 열기</a></p>'},
+      {id:'x2',kind:'x',x:36,y:290,title:'반입규정 반복어',sub:'clear bag·짐검사·반입불가',detail:'<p><b>설명:</b> 공연장 규칙이 팬들의 구매 선택을 바꿉니다.</p><p><a href="file:///Users/hongseong-yong/openclaw/BTS_X키워드수집/q2_bts_items.json">X 원본 열기</a></p>'},
+      {id:'x3',kind:'x',x:36,y:520,title:'아미밤/응원봉 군집',sub:'아미밤·응원봉·AAA 건전지',detail:'<p><b>설명:</b> 이 노드는 물/생수보다 전력 유지와 몰입 지속성을 설명합니다.</p><p><a href="file:///Users/hongseong-yong/openclaw/BTS_X키워드수집/q3_armybomb.json">X 원본 열기</a></p>'},
+      {id:'x4',kind:'x',x:36,y:750,title:'대기열/체력관리 군집',sub:'물·핫팩·휴지·선풍기·약',detail:'<p><b>설명:</b> 생수와 김밥을 움직이는 가장 직접적인 원인입니다.</p>'},
+      {id:'c1',kind:'cluster',x:374,y:70,title:'입장/신분 의미군집',sub:'입장 가능 상태를 만드는 준비',detail:'<p>입장권과 신분증은 공연 소비의 출발선입니다.</p>'},
+      {id:'c2',kind:'cluster',x:374,y:290,title:'제약/압축 의미군집',sub:'규정이 소비 형태를 바꾼다',detail:'<p>clear bag과 짐검사는 선택을 작고 간편한 물품 쪽으로 몰아갑니다.</p>'},
+      {id:'c3',kind:'cluster',x:374,y:520,title:'응원/전원 의미군집',sub:'응원 장비와 전력 유지',detail:'<p>아미밤은 생수보다 전력과 현장 지속성을 설명합니다.</p>'},
+      {id:'c4',kind:'cluster',x:374,y:750,title:'대기/체력관리 의미군집',sub:'야외 체류가 보급 수요를 만든다',detail:'<p>물, 물티슈, 선풍기, 약, 간단한 먹거리는 줄서기와 체류시간 때문에 필요해집니다.</p>'},
+      {id:'o1',kind:'offline',x:886,y:130,title:'샌드위치/김밥',sub:'빠르게 먹고 이동 가능한 즉석식',detail:'<p><a target="_blank" href="https://search.naver.com/search.naver?query=BTS%20%EA%B3%B5%EC%97%B0%20%EC%83%81%EA%B6%8C%20%EB%A7%A4%EC%B6%9C">출처 열기</a></p>'},
+      {id:'o2',kind:'offline',x:886,y:340,title:'생수/음료',sub:'대기열 보급의 핵심',detail:'<p><a target="_blank" href="https://search.naver.com/search.naver?query=BTS%20%EA%B3%B5%EC%97%B0%20%EC%83%81%EA%B6%8C%20%EB%A7%A4%EC%B6%9C">출처 열기</a></p>'},
+      {id:'o3',kind:'offline',x:886,y:570,title:'K-라면/가공식품',sub:'간편 조달 + 기념 체험의 이중 구조',detail:'<p><a target="_blank" href="https://search.naver.com/search.naver?query=BTS%20%EA%B3%B5%EC%97%B0%20%EC%83%81%EA%B6%8C%20%EB%A7%A4%EC%B6%9C">출처 열기</a></p>'},
+      {id:'o4',kind:'offline',x:886,y:780,title:'키링/굿즈',sub:'감정과 정체성이 만든 기념 소비',detail:'<p><a target="_blank" href="https://search.naver.com/search.naver?query=BTS%20%EA%B3%B5%EC%97%B0%20%EC%83%81%EA%B6%8C%20%EB%A7%A4%EC%B6%9C">출처 열기</a></p>'},
+      {id:'s1',kind:'store',x:1038,y:450,title:'편의점 추가 배치/전면 진열',sub:'즉석식·생수·간편식·기념품을 앞쪽에',detail:'<p><b>최종 결론:</b> 팬들의 수요 언어와 현장 제약을 읽으면 편의점은 무엇을 더 많이, 더 앞에 놓아야 하는지 결정할 수 있습니다.</p>'}
+    ];
+
+    function renderCards(targetId, arr){
+      const wrap=document.getElementById(targetId);
+      arr.forEach(c=>{
+        const d=document.createElement('div');
+        d.className='glass-container card';
+        d.innerHTML=`<div class="glass-filter"></div><div class="glass-overlay"></div><div class="glass-specular"></div><div class="glass-content"><h3>${c.title}</h3><div class="meta">${c.body}</div><div class="tags">${c.tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div></div>`;
+        wrap.appendChild(d);
+      });
+    }
+    renderCards('cards', cards); renderCards('subcards', subcards);
+
+    const mapWrap=document.getElementById('mapWrap');
+    nodes.forEach(n=>{
+      const d=document.createElement('button');
+      d.type='button';
+      d.className='glass-container node';
+      d.dataset.kind=n.kind;
+      d.style.left=n.x+'px';
+      d.style.top=n.y+'px';
+      d.innerHTML=`<div class="glass-filter"></div><div class="glass-overlay"></div><div class="glass-specular"></div><div class="glass-content"><div class="node-title">${n.title}</div><div class="node-sub">${n.sub}</div></div>`;
+      d.addEventListener('click',()=>openModal(n));
+      mapWrap.appendChild(d);
+    });
+
+    const modalBg=document.getElementById('modalBg');
+    const modalTitle=document.getElementById('modalTitle');
+    const modalBody=document.getElementById('modalBody');
+    document.getElementById('closeModal').onclick=()=>modalBg.style.display='none';
+    modalBg.onclick=(e)=>{ if(e.target===modalBg) modalBg.style.display='none'; };
+    function openModal(n){
+      modalTitle.textContent=n.title;
+      modalBody.innerHTML=n.detail;
+      modalBg.style.display='flex';
+    }
+  </script>
+</body>
+</html>

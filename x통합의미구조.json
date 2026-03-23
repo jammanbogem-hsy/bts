@@ -1,0 +1,222 @@
+{
+  "title": "BTS 공연 상권·X 데이터 통합 의미구조",
+  "version": 2,
+  "updatedAt": "2026-03-23T14:23:00+09:00",
+  "storyLayers": [
+    {
+      "id": "l1",
+      "name": "사전 준비 수요",
+      "summary": "팬들은 공연 전 티켓, 신분증, 아미밤, 보조배터리, 물 같은 준비물을 먼저 점검한다. 이 단계는 '무엇을 챙길까'라는 수요 형성 단계다."
+    },
+    {
+      "id": "l2",
+      "name": "현장 제약 조건",
+      "summary": "반입 규정, clear bag, 짐검사, 장시간 대기, 야외 환경이 팬의 선택지를 좁힌다. 이 단계는 '무엇을 챙길 수 있을까'를 결정한다."
+    },
+    {
+      "id": "l3",
+      "name": "즉시 보급 소비",
+      "summary": "현장 직전 또는 현장 주변에서 바로 조달할 수 있는 품목으로 수요가 이동한다. 샌드위치, 김밥, 생수, 음료처럼 작고 즉시 소비 가능한 물품이 뜬다."
+    },
+    {
+      "id": "l4",
+      "name": "상징/기념 소비",
+      "summary": "팬덤 정체성과 공연 경험은 굿즈, 키링, K-가공식품 같은 기념성 소비를 만든다. 이는 생존형 소비와는 다른 감정 소비 레이어다."
+    },
+    {
+      "id": "l5",
+      "name": "점포 운영 대응",
+      "summary": "편의점은 위 수요 흐름을 보고 즉석식, 생수, 음료, 간편식, 기념소비 품목을 추가 배치하거나 전면 진열하게 된다."
+    }
+  ],
+  "nodes": [
+    {
+      "id": "x_prepare",
+      "kind": "x",
+      "label": "준비물 반복어",
+      "summary": "티켓, 신분증, 보조배터리, 물, 물티슈, 선풍기, 아미밤 등",
+      "layer": "l1"
+    },
+    {
+      "id": "x_rules",
+      "kind": "x",
+      "label": "반입규정 반복어",
+      "summary": "clear bag, 짐검사, 반입불가, 셀카봉 금지, 유리병 금지 등",
+      "layer": "l2"
+    },
+    {
+      "id": "x_armybomb",
+      "kind": "x",
+      "label": "아미밤/응원봉 군집",
+      "summary": "아미밤, 응원봉, AAA건전지, 충전, 보조배터리",
+      "layer": "l1"
+    },
+    {
+      "id": "x_waiting",
+      "kind": "x",
+      "label": "대기열/체력관리 군집",
+      "summary": "물, 물티슈, 선풍기, 핫팩, 약, 편한 신발, 식사 미리 하기",
+      "layer": "l2"
+    },
+    {
+      "id": "cluster_entry",
+      "kind": "cluster",
+      "label": "입장/신분 의미군집",
+      "summary": "입장 가능 상태를 만드는 준비. 티켓·신분증이 빠지면 소비 이전에 진입 실패 가능",
+      "layer": "l1"
+    },
+    {
+      "id": "cluster_power",
+      "kind": "cluster",
+      "label": "응원/전원 의미군집",
+      "summary": "아미밤과 응원봉은 현장 체류와 전력 수요를 동반하지만, 직접적으로 생수 판매와 연결되기보다 '현장 지속성'과 연결된다",
+      "layer": "l1"
+    },
+    {
+      "id": "cluster_constraints",
+      "kind": "cluster",
+      "label": "제약/압축 의미군집",
+      "summary": "반입 규정과 짐검사는 팬의 선택을 작고 가벼운 물품 위주로 압축한다",
+      "layer": "l2"
+    },
+    {
+      "id": "cluster_waiting",
+      "kind": "cluster",
+      "label": "대기/체력관리 의미군집",
+      "summary": "장시간 줄서기와 야외 체류는 수분, 즉석식, 위생, 체온관리 수요를 만든다",
+      "layer": "l2"
+    },
+    {
+      "id": "cluster_symbolic",
+      "kind": "cluster",
+      "label": "상징/기념 의미군집",
+      "summary": "보라색, 아미, 플랜카드, 키링 같은 상징 소비가 별도 레이어를 형성한다",
+      "layer": "l4"
+    },
+    {
+      "id": "offline_meal",
+      "kind": "offline",
+      "label": "샌드위치/김밥",
+      "summary": "빠르게 먹고 이동하기 쉬운 즉석식",
+      "layer": "l3",
+      "source": "https://search.naver.com/search.naver?query=BTS%20%EA%B3%B5%EC%97%B0%20%EC%83%81%EA%B6%8C%20%EB%A7%A4%EC%B6%9C"
+    },
+    {
+      "id": "offline_water",
+      "kind": "offline",
+      "label": "생수/음료",
+      "summary": "장시간 대기와 현장 체류를 버티게 하는 보급형 소비",
+      "layer": "l3",
+      "source": "https://search.naver.com/search.naver?query=BTS%20%EA%B3%B5%EC%97%B0%20%EC%83%81%EA%B6%8C%20%EB%A7%A4%EC%B6%9C"
+    },
+    {
+      "id": "offline_processed",
+      "kind": "offline",
+      "label": "K-라면/가공식품",
+      "summary": "기념성 소비이기도 하지만, 입장 전후 빠르게 조달 가능한 한국형 간편식이기도 하다",
+      "layer": "l3",
+      "source": "https://search.naver.com/search.naver?query=BTS%20%EA%B3%B5%EC%97%B0%20%EC%83%81%EA%B6%8C%20%EB%A7%A4%EC%B6%9C"
+    },
+    {
+      "id": "offline_goods",
+      "kind": "offline",
+      "label": "키링/굿즈",
+      "summary": "팬덤 정체성을 구매로 전환하는 대표적 기념 소비",
+      "layer": "l4",
+      "source": "https://search.naver.com/search.naver?query=BTS%20%EA%B3%B5%EC%97%B0%20%EC%83%81%EA%B6%8C%20%EB%A7%A4%EC%B6%9C"
+    },
+    {
+      "id": "store_ops",
+      "kind": "store",
+      "label": "편의점 추가 배치/전면 진열",
+      "summary": "점포는 팬 수요와 제약 조건을 보고 즉석식, 생수, 음료, 간편식, 기념 소비 품목을 전진 배치한다",
+      "layer": "l5"
+    }
+  ],
+  "edges": [
+    {
+      "from": "x_prepare",
+      "to": "cluster_entry",
+      "label": "입장 준비 수요",
+      "story": "티켓과 신분증은 공연 소비의 출발점이다. 이 준비가 되지 않으면 소비 이전에 입장이 막힌다."
+    },
+    {
+      "from": "x_prepare",
+      "to": "cluster_waiting",
+      "label": "대기 대비 수요",
+      "story": "동일한 준비물 데이터 안에서도 물, 휴지, 선풍기 같은 항목은 곧바로 체력관리 수요로 넘어간다."
+    },
+    {
+      "from": "x_armybomb",
+      "to": "cluster_power",
+      "label": "응원 지속성",
+      "story": "아미밤은 생수 판매와 직접 연결되기보다, 공연 체류시간을 길게 만들고 배터리/보조전원 수요를 자극한다. 즉 전력과 몰입의 군집이다."
+    },
+    {
+      "from": "x_rules",
+      "to": "cluster_constraints",
+      "label": "반입 제약",
+      "story": "clear bag과 짐검사는 물건 선택을 압축한다. 팬은 크고 불확실한 물건보다, 작은 즉석 소비재를 고르게 된다."
+    },
+    {
+      "from": "x_waiting",
+      "to": "cluster_waiting",
+      "label": "야외 체류 압력",
+      "story": "대기열은 물, 생수, 휴지, 간단한 먹거리로 연결되는 가장 직접적인 행동 신호다."
+    },
+    {
+      "from": "cluster_waiting",
+      "to": "offline_water",
+      "label": "수분 보급 수요",
+      "story": "장시간 대기와 야외 체류는 생수와 음료를 가장 먼저 움직이게 한다."
+    },
+    {
+      "from": "cluster_waiting",
+      "to": "offline_meal",
+      "label": "빠른 식사 수요",
+      "story": "줄을 오래 서는 상황에서는 앉아서 오래 먹는 식사보다 김밥, 샌드위치 같은 즉석식이 유리하다."
+    },
+    {
+      "from": "cluster_constraints",
+      "to": "offline_meal",
+      "label": "작고 간편한 품목 선호",
+      "story": "반입 규정은 '간단히 들고 이동 가능한 식품'을 상대적으로 더 유리하게 만든다."
+    },
+    {
+      "from": "cluster_entry",
+      "to": "offline_processed",
+      "label": "입장 전후 간편 조달",
+      "story": "입장 준비를 마친 팬은 현장 전후로 빠르게 조달 가능한 한국형 간편식/가공식품을 찾을 수 있다. 따라서 K-라면과 가공식품은 굿즈만이 아니라 입장 동선과도 연결된다."
+    },
+    {
+      "from": "cluster_symbolic",
+      "to": "offline_goods",
+      "label": "기념 소비",
+      "story": "팬덤 정체성은 키링과 굿즈 구매로 바로 번역된다."
+    },
+    {
+      "from": "offline_meal",
+      "to": "store_ops",
+      "label": "즉석식 추가 배치",
+      "story": "김밥과 샌드위치 수요가 보이면 점포는 바로 먹는 식품을 앞쪽에 더 깔게 된다."
+    },
+    {
+      "from": "offline_water",
+      "to": "store_ops",
+      "label": "생수/음료 전면 배치",
+      "story": "생수와 음료는 가장 빠른 회전 품목이므로 박스 단위 전진 배치가 일어나기 쉽다."
+    },
+    {
+      "from": "offline_processed",
+      "to": "store_ops",
+      "label": "간편식/가공식품 확대",
+      "story": "K-라면과 가공식품은 외국인 팬의 체험 소비와 빠른 조달 수요를 동시에 흡수한다."
+    },
+    {
+      "from": "offline_goods",
+      "to": "store_ops",
+      "label": "기념소비 확장",
+      "story": "굿즈성 소비가 보이면 점포는 키링, 기념품, 팬덤 색채가 있는 상품을 더 전면에 둘 유인이 생긴다."
+    }
+  ]
+}

@@ -1,0 +1,93 @@
+{
+  "title": "BTS 공연 상권 데이터 매핑",
+  "updatedAt": "2026-03-23T09:05:00+09:00",
+  "queries": [
+    {
+      "id": "q1",
+      "label": "BTS 공연 편의점 추가 발주",
+      "source": "네이버 검색",
+      "url": "https://search.naver.com/search.naver?query=BTS%20%EA%B3%B5%EC%97%B0%20%ED%8E%B8%EC%9D%98%EC%A0%90%20%EC%B6%94%EA%B0%80%20%EB%B0%9C%EC%A3%BC"
+    },
+    {
+      "id": "q2",
+      "label": "BTS 공연 편의점 매출",
+      "source": "네이버 검색",
+      "url": "https://search.naver.com/search.naver?query=BTS%20%EA%B3%B5%EC%97%B0%20%ED%8E%B8%EC%9D%98%EC%A0%90%20%EB%A7%A4%EC%B6%9C"
+    },
+    {
+      "id": "q3",
+      "label": "BTS 공연 상권 매출",
+      "source": "네이버 검색",
+      "url": "https://search.naver.com/search.naver?query=BTS%20%EA%B3%B5%EC%97%B0%20%EC%83%81%EA%B6%8C%20%EB%A7%A4%EC%B6%9C"
+    }
+  ],
+  "results": [
+    {
+      "id": "r1",
+      "title": "SBS 스니펫: 편의점 직원 인터뷰",
+      "summary": "광화문 공연 특수를 노린 편의점들이 보랏빛으로 단장했고, 매출은 평소 주말보다 2배 정도. 샌드위치와 김밥 수요가 특히 언급됨.",
+      "evidence": ["주말보다 2배 정도", "샌드위치", "김밥"],
+      "source": "SBS 뉴스 검색 결과 스니펫",
+      "sourceUrl": "https://search.naver.com/search.naver?query=BTS%20%EA%B3%B5%EC%97%B0%20%EC%83%81%EA%B6%8C%20%EB%A7%A4%EC%B6%9C",
+      "trust": "중간~높음"
+    },
+    {
+      "id": "r2",
+      "title": "YTN 스니펫: 유통가 총력전",
+      "summary": "BTS 키링 등 상품 매출이 전주 대비 190% 상승했고, K-라면·가공식품을 전면에 내세우며 편의점도 준비 완료라고 언급됨.",
+      "evidence": ["키링 매출 190% 상승", "K-라면", "가공식품"],
+      "source": "YTN 관련 검색 결과 스니펫",
+      "sourceUrl": "https://search.naver.com/search.naver?query=BTS%20%EA%B3%B5%EC%97%B0%20%EC%83%81%EA%B6%8C%20%EB%A7%A4%EC%B6%9C",
+      "trust": "중간"
+    },
+    {
+      "id": "r3",
+      "title": "커뮤니티/블로그성 스니펫: 음료박스·생수",
+      "summary": "음료 박스를 매장 앞에 쌓아둘 정도였고, 일부 2차 글에서는 생수 9배·편의점 매출 5배 등의 표현이 반복됨.",
+      "evidence": ["음료박스", "생수 9배", "편의점 매출 5배"],
+      "source": "검색 결과 스니펫 및 2차 정리 글",
+      "sourceUrl": "https://search.naver.com/search.naver?query=BTS%20%EA%B3%B5%EC%97%B0%20%EC%83%81%EA%B6%8C%20%EB%A7%A4%EC%B6%9C",
+      "trust": "낮음~중간"
+    },
+    {
+      "id": "r4",
+      "title": "상권 전반 소비 증가 스니펫",
+      "summary": "명동·광화문 일대에서 편의점뿐 아니라 음식점, 카페, 패션·뷰티, 호텔/숙박 수요까지 전반적으로 증가했다는 흐름이 반복 확인됨.",
+      "evidence": ["명동·광화문 상권", "패션·뷰티", "호텔 만실"],
+      "source": "복수 매체 검색 스니펫",
+      "sourceUrl": "https://search.naver.com/search.naver?query=BTS%20%EA%B3%B5%EC%97%B0%20%EC%83%81%EA%B6%8C%20%EB%A7%A4%EC%B6%9C",
+      "trust": "중간"
+    }
+  ],
+  "items": [
+    {"id": "i1", "label": "샌드위치", "category": "즉석식"},
+    {"id": "i2", "label": "김밥", "category": "즉석식"},
+    {"id": "i3", "label": "음료", "category": "음료"},
+    {"id": "i4", "label": "생수", "category": "음료"},
+    {"id": "i5", "label": "K-라면", "category": "가공식품"},
+    {"id": "i6", "label": "가공식품", "category": "가공식품"},
+    {"id": "i7", "label": "키링", "category": "굿즈"},
+    {"id": "i8", "label": "호텔/숙박", "category": "상권"},
+    {"id": "i9", "label": "패션/뷰티", "category": "상권"},
+    {"id": "i10", "label": "카페/음식점", "category": "상권"}
+  ],
+  "links": [
+    {"from": "q3", "to": "r1", "type": "검색결과"},
+    {"from": "q3", "to": "r2", "type": "검색결과"},
+    {"from": "q3", "to": "r3", "type": "검색결과"},
+    {"from": "q3", "to": "r4", "type": "검색결과"},
+    {"from": "q1", "to": "r3", "type": "검색결과"},
+    {"from": "q2", "to": "r1", "type": "검색결과"},
+    {"from": "r1", "to": "i1", "type": "품목"},
+    {"from": "r1", "to": "i2", "type": "품목"},
+    {"from": "r1", "to": "i10", "type": "상권"},
+    {"from": "r2", "to": "i5", "type": "품목"},
+    {"from": "r2", "to": "i6", "type": "품목"},
+    {"from": "r2", "to": "i7", "type": "품목"},
+    {"from": "r3", "to": "i3", "type": "품목"},
+    {"from": "r3", "to": "i4", "type": "품목"},
+    {"from": "r4", "to": "i8", "type": "상권"},
+    {"from": "r4", "to": "i9", "type": "상권"},
+    {"from": "r4", "to": "i10", "type": "상권"}
+  ]
+}
