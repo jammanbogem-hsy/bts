@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>bts 소셜 데이터 리포트</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Apple SD Gothic Neo','Malgun Gothic',sans-serif;background:#0a0f1e;color:#e2e8f0;min-height:100vh}
+
+/* ── Header ── */
+.header{background:linear-gradient(135deg,#1e3a5f,#0f2744);padding:40px 32px 32px;border-bottom:1px solid #1e3a5f}
+.header h1{font-size:2rem;font-weight:800;color:#f8fafc;margin-bottom:8px}
+.header .meta{color:#94a3b8;font-size:.9rem;display:flex;gap:20px;flex-wrap:wrap;margin-bottom:20px}
+.header .meta span{display:flex;align-items:center;gap:6px}
+.source-badges{display:flex;gap:8px;flex-wrap:wrap}
+.badge{padding:4px 12px;border-radius:9999px;font-size:.75rem;font-weight:600;border:1px solid}
+.badge-naver{background:rgba(3,199,90,.15);border-color:#03c75a;color:#03c75a}
+.badge-youtube{background:rgba(255,0,0,.15);border-color:#ff4444;color:#ff4444}
+.badge-x{background:rgba(255,255,255,.1);border-color:#aaa;color:#aaa}
+
+/* ── Story Banner ── */
+.story-banner{background:#1e293b;border-left:4px solid #38bdf8;padding:20px 24px;margin:24px 32px;border-radius:0 12px 12px 0;font-size:1rem;line-height:1.8;color:#cbd5e1}
+.story-banner strong{color:#38bdf8}
+
+/* ── Layout ── */
+.main{padding:24px 32px;display:flex;flex-direction:column;gap:24px}
+.section-title{font-size:.75rem;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.1em;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.section-title::after{content:'';flex:1;height:1px;background:#1e293b}
+
+/* ── KPI ── */
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}
+.kpi{background:#1e293b;border-radius:12px;padding:20px;border:1px solid #334155;position:relative;overflow:hidden}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.kpi-blue::before{background:#38bdf8}
+.kpi-green::before{background:#34d399}
+.kpi-amber::before{background:#fbbf24}
+.kpi-purple::before{background:#a78bfa}
+.kpi-value{font-size:2rem;font-weight:800;color:#f8fafc;line-height:1}
+.kpi-label{font-size:.8rem;color:#64748b;margin-top:6px}
+.kpi-sub{font-size:.75rem;color:#94a3b8;margin-top:4px}
+
+/* ── Chart boxes ── */
+.card{background:#1e293b;border-radius:12px;border:1px solid #334155;overflow:hidden}
+.card-header{padding:16px 20px;border-bottom:1px solid #334155;display:flex;align-items:center;justify-content:space-between}
+.card-title{font-size:.95rem;font-weight:600;color:#e2e8f0}
+.card-desc{font-size:.78rem;color:#64748b;margin-top:2px}
+.card-body{padding:20px}
+.chart{width:100%;height:340px}
+.chart-lg{width:100%;height:420px}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+
+/* ── Emotion words ── */
+.emotion-section{padding:0 20px 20px}
+.emotion-row{display:flex;gap:16px;margin-top:8px;flex-wrap:wrap}
+.emotion-group{flex:1;min-width:180px}
+.emotion-group h4{font-size:.75rem;font-weight:600;margin-bottom:8px}
+.emotion-group.pos h4{color:#34d399}
+.emotion-group.neg h4{color:#f87171}
+.emotion-chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{padding:3px 10px;border-radius:9999px;font-size:.75rem;border:1px solid}
+.chip-pos{background:rgba(52,211,153,.1);border-color:rgba(52,211,153,.4);color:#34d399}
+.chip-neg{background:rgba(248,113,113,.1);border-color:rgba(248,113,113,.4);color:#f87171}
+
+/* ── Knowledge graph ── */
+.graph-layout{display:grid;grid-template-columns:1fr 340px;gap:0}
+.graph-area{border-right:1px solid #334155}
+#chart-graph{width:100%;height:520px}
+.graph-panel{padding:20px;overflow-y:auto;max-height:520px}
+.graph-panel-default{color:#64748b;font-size:.85rem;text-align:center;padding-top:40px;line-height:1.8}
+.graph-panel-default .icon{font-size:2rem;margin-bottom:12px}
+.node-detail{display:none}
+.node-detail.active{display:block}
+.node-name{font-size:1.1rem;font-weight:700;color:#f8fafc;margin-bottom:4px}
+.node-cluster{font-size:.78rem;color:#94a3b8;margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid #334155}
+.detail-section{margin-bottom:16px}
+.detail-label{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#64748b;margin-bottom:8px}
+.related-chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.related-chip{padding:3px 10px;border-radius:9999px;font-size:.75rem;background:#0f172a;border:1px solid #334155;color:#94a3b8;cursor:pointer}
+.related-chip:hover{border-color:#38bdf8;color:#38bdf8}
+.sample-text{background:#0f172a;border-radius:8px;padding:10px 12px;font-size:.8rem;color:#cbd5e1;line-height:1.6;margin-bottom:6px;border-left:3px solid #334155}
+
+/* ── Spike reports ── */
+.spike-list{display:flex;flex-direction:column;gap:12px}
+.spike-card{background:#0f172a;border-radius:8px;padding:16px;border-left:4px solid #f59e0b}
+.spike-date{font-weight:700;color:#f59e0b;font-size:.85rem;margin-bottom:4px}
+.spike-trigger{font-size:1rem;font-weight:600;color:#f8fafc;margin-bottom:8px}
+.spike-explain{font-size:.85rem;color:#94a3b8;line-height:1.6;margin-bottom:10px}
+.spike-keywords{display:flex;gap:6px;flex-wrap:wrap}
+.spike-kw{padding:2px 8px;border-radius:9999px;font-size:.72rem;background:#1e293b;border:1px solid #334155;color:#94a3b8}
+
+/* ── Source breakdown ── */
+.source-bar{display:flex;height:8px;border-radius:9999px;overflow:hidden;margin:8px 0}
+.source-legend{display:flex;gap:16px;font-size:.78rem;color:#94a3b8;margin-top:6px}
+.source-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:4px}
+
+footer{text-align:center;color:#334155;font-size:.72rem;padding:24px;border-top:1px solid #1e293b;margin-top:8px}
+
+@media(max-width:900px){
+  .two-col{grid-template-columns:1fr}
+  .graph-layout{grid-template-columns:1fr}
+  .graph-panel{max-height:300px;border-top:1px solid #334155}
+  .header{padding:24px 16px}
+  .main{padding:16px}
+}
+</style>
+</head>
+<body>
+
+<!-- ── HEADER ── -->
+<div class="header">
+  <h1>"bts" 소셜 데이터 분석 리포트</h1>
+  <div class="meta">
+    <span>📅 수집기간: 기존 CSV 사용</span>
+    <span>🔍 분석일: 2026-03-30</span>
+    <span>📊 총 6,954건</span>
+  </div>
+  <div class="source-badges">
+    <span class="badge badge-naver">네이버 뉴스 6,417건</span><span class="badge badge-youtube">YouTube 댓글 537건</span>
+  </div>
+</div>
+
+<!-- ── STORY BANNER ── -->
+<div class="story-banner" id="story-text">
+  <strong>📖 리포트 요약</strong> &nbsp; 최근 BTS는 새 앨범 '아리랑'으로 빌보드 차트 정상을 석권하며 뜨거운 컴백 소식을 알렸습니다. 팬들은 스트리밍과 응원으로 멤버들의 활동을 적극 지지하며 열정적인 모습을 보였고, 멤버 개인의 활동과 이슈에 대해서도 많은 관심과 다양한 의견을 표출했습니다. 한편, 데이터에는 초등학교 AI 교육 의무화 정책에 대한 찬반 논의가 별개의 중요한 주제로 함께 언급되었습니다.
+</div>
+
+<div class="main">
+
+  <!-- KPI -->
+  <div>
+    <div class="section-title">핵심 지표</div>
+    <div class="kpi-grid">
+      <div class="kpi kpi-blue">
+        <div class="kpi-value" id="kpi-total">6,954</div>
+        <div class="kpi-label">총 수집 건수</div>
+        <div class="kpi-sub">네이버 뉴스 + YouTube 댓글</div>
+      </div>
+      <div class="kpi kpi-green">
+        <div class="kpi-value" id="kpi-pos">—</div>
+        <div class="kpi-label">평균 긍정 비율</div>
+        <div class="kpi-sub">전체 군집 평균</div>
+      </div>
+      <div class="kpi kpi-amber">
+        <div class="kpi-value" id="kpi-spikes">—</div>
+        <div class="kpi-label">폭증 감지 일수</div>
+        <div class="kpi-sub">이동평균 2배 초과 기준</div>
+      </div>
+      <div class="kpi kpi-purple">
+        <div class="kpi-value" id="kpi-clusters">—</div>
+        <div class="kpi-label">주요 의견 군집</div>
+        <div class="kpi-sub">Gemini AI 분석</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 시계열 -->
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <div class="card-title">📈 일별 언급량 동향</div>
+        <div class="card-desc">날짜별 실제 발행/게시 데이터 기준 — 수집량이 아닌 원본 날짜로 집계</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <!-- 출처별 비율 바 -->
+      <div style="margin-bottom:16px">
+        <div style="font-size:.78rem;color:#64748b;margin-bottom:4px">출처 구성</div>
+        <div class="source-bar" id="source-bar"></div>
+        <div class="source-legend" id="source-legend"></div>
+      </div>
+      <div id="chart-ts" class="chart-lg"></div>
+    </div>
+  </div>
+
+  <!-- 감정 분석 + 군집 -->
+  <div class="two-col">
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">😊 군집별 감정 분석</div>
+          <div class="card-desc">실제 텍스트에서 추출한 감정 표현 포함</div>
+        </div>
+      </div>
+      <div class="card-body" style="padding-bottom:0">
+        <div id="chart-sentiment" class="chart" style="height:280px"></div>
+      </div>
+      <div class="emotion-section" id="emotion-words"></div>
+    </div>
+    <div class="card">
+      <div class="card-header">
+        <div>
+          <div class="card-title">🔵 의견 군집 분포</div>
+          <div class="card-desc">어떤 주제로 대화가 나뉘었나</div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div id="chart-pie" class="chart" style="height:280px"></div>
+        <div id="cluster-stories" style="margin-top:16px;display:flex;flex-direction:column;gap:8px"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 지식 그래프 -->
+  <div class="card">
+    <div class="card-header">
+      <div>
+        <div class="card-title">🕸️ 키워드 관계 지식 그래프</div>
+        <div class="card-desc">노드를 클릭하면 연결된 키워드와 관련 내용을 오른쪽에서 확인할 수 있어요</div>
+      </div>
+    </div>
+    <div class="graph-layout">
+      <div class="graph-area">
+        <div id="chart-graph"></div>
+      </div>
+      <div class="graph-panel">
+        <div class="graph-panel-default" id="graph-default">
+          <div class="icon">👆</div>
+          <strong style="color:#94a3b8;display:block;margin-bottom:8px">노드를 클릭해보세요</strong>
+          키워드를 클릭하면<br>연결된 키워드와<br>관련 내용을 볼 수 있어요
+        </div>
+        <div class="node-detail" id="node-detail">
+          <div class="node-name" id="nd-name"></div>
+          <div class="node-cluster" id="nd-cluster"></div>
+          <div class="detail-section">
+            <div class="detail-label">연결된 키워드</div>
+            <div class="related-chips" id="nd-related"></div>
+          </div>
+          <div class="detail-section">
+            <div class="detail-label">관련 텍스트 예시</div>
+            <div id="nd-samples"></div>
+          </div>
+          <div class="detail-section" id="nd-emotion-section">
+            <div class="detail-label">감정 표현</div>
+            <div id="nd-emotions"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 폭증 분석 -->
+  <div class="card" id="spike-section" style="display:none">
+    <div class="card-header">
+      <div>
+        <div class="card-title">⚡ 언급 폭증 원인 분석</div>
+        <div class="card-desc">이동평균 대비 2배 이상 급증한 날의 결정적 원인</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <div class="spike-list" id="spike-list"></div>
+    </div>
+  </div>
+
+</div>
+
+<footer>분석 엔진: Grok API (쿼리 확장) + Gemini gemini-2.5-flash (텍스트 분석) | 데이터 출처: 네이버 뉴스, YouTube | 2026-03-30</footer>
+
+<script>
+// ────────────────────────────────────────────────────────────────────────────
+// DATA
+// ────────────────────────────────────────────────────────────────────────────
+const CLUSTER_DATA = {"clusters": [{"id": 1, "label": "컴백 성공", "positive_ratio": 0.9, "negative_ratio": 0.1, "positive_emotion_words": ["정상", "신기록", "압도적인 파워", "훌륭하다", "자랑", "보배", "미쳤다"], "negative_emotion_words": ["우려"], "keywords": ["BTS", "아리랑", "빌보드", "컴백", "신기록"], "sample_texts": ["BTS '아리랑', '빌보드 200' 7번째 정상", "방탄소년단, 또 美 빌보드 1위 신기록..군백기 무색한 글로벌 '존재감'"]}, {"id": 2, "label": "팬덤 활동", "positive_ratio": 0.93, "negative_ratio": 0.07, "positive_emotion_words": ["응원합니다", "사랑합니다", "기대만땅", "중독", "최고", "좋다", "찐이다"], "negative_emotion_words": ["아쉽다"], "keywords": ["아미", "응원", "스트리밍", "팬덤", "신곡"], "sample_texts": ["80 millions, lets go Armys!! Continue streaming guys", "아니 무대도 미쳤는데 라이브가 개사기급으로 잘함. ㅋㅋㅋ 방탄 2챕터 되더니 멤버들 라이브 실력이 더 업글됨"]}, {"id": 3, "label": "멤버 이슈", "positive_ratio": 0.69, "negative_ratio": 0.31, "positive_emotion_words": ["멋있다", "최고야", "화보장인", "열일한다", "깔끔하고"], "negative_emotion_words": ["불안하다", "걱정", "쫌 그래"], "keywords": ["정국", "뷔", "챌린지", "타투", "열애설"], "sample_texts": ["정국이는 원래 캐리어안에 칼각으로 정리해놓음 ㅋㅋ", "타투없는 맨몸이 간지인데 ㅜ 아직 모르겠지"]}, {"id": 4, "label": "AI 교육 논의", "positive_ratio": 0.5, "negative_ratio": 0.5, "positive_emotion_words": ["필요합니다", "찬성합니다", "급성장"], "negative_emotion_words": ["반발", "비판", "효과 없을 것 같아요", "준비 없는 정책"], "keywords": ["AI 교육", "의무화", "학부모", "교사", "정책"], "sample_texts": ["교육부, 초등학교 AI 교육 의무화 추진… 2027년부터 전면 도입", "AI 코딩 수업 확대에 교사들 반발... '준비 없는 정책' 비판"]}], "edges": [{"source": "BTS", "target": "아리랑", "weight": 5.0}, {"source": "아리랑", "target": "빌보드", "weight": 5.0}, {"source": "BTS", "target": "컴백", "weight": 4.0}, {"source": "BTS", "target": "아미", "weight": 4.0}, {"source": "아미", "target": "응원", "weight": 3.0}, {"source": "BTS", "target": "스포티파이", "weight": 3.0}, {"source": "스포티파이", "target": "SWIMSIDE", "weight": 4.0}, {"source": "BTS", "target": "광화문", "weight": 3.0}, {"source": "BTS", "target": "넷플릭스", "weight": 3.0}, {"source": "BTS", "target": "정국", "weight": 4.0}, {"source": "정국", "target": "챌린지", "weight": 3.0}, {"source": "정국", "target": "타투", "weight": 2.0}, {"source": "BTS", "target": "K팝 굿즈", "weight": 3.0}, {"source": "K팝 굿즈", "target": "관광", "weight": 3.0}, {"source": "아리랑", "target": "한국 문화", "weight": 4.0}, {"source": "No. 29", "target": "성덕대왕신종", "weight": 4.0}, {"source": "AI 교육", "target": "의무화", "weight": 5.0}, {"source": "AI 교육", "target": "학부모", "weight": 3.0}], "story": "최근 BTS는 새 앨범 '아리랑'으로 빌보드 차트 정상을 석권하며 뜨거운 컴백 소식을 알렸습니다. 팬들은 스트리밍과 응원으로 멤버들의 활동을 적극 지지하며 열정적인 모습을 보였고, 멤버 개인의 활동과 이슈에 대해서도 많은 관심과 다양한 의견을 표출했습니다. 한편, 데이터에는 초등학교 AI 교육 의무화 정책에 대한 찬반 논의가 별개의 중요한 주제로 함께 언급되었습니다.", "summary": "BTS의 '아리랑' 앨범 컴백이 빌보드 차트 1위 기록과 함께 전 세계 팬들의 뜨거운 응원과 관심 속에 큰 성공을 거두었습니다. 이와 별도로 초등학교 AI 교육 의무화에 대한 정책적 논의와 찬반 의견도 주목받았습니다.", "source_stats": {"naver_news": 6417, "youtube_comment": 537}};
+const SPIKE_DATA   = {"timeseries": [{"date": "2026-01-01", "count": 10}, {"date": "2026-01-02", "count": 9}, {"date": "2026-01-03", "count": 2}, {"date": "2026-01-04", "count": 1}, {"date": "2026-01-05", "count": 5}, {"date": "2026-01-06", "count": 9}, {"date": "2026-01-07", "count": 40}, {"date": "2026-01-08", "count": 32}, {"date": "2026-01-09", "count": 39}, {"date": "2026-01-10", "count": 4}, {"date": "2026-01-11", "count": 1}, {"date": "2026-01-12", "count": 6}, {"date": "2026-01-13", "count": 5}, {"date": "2026-01-14", "count": 7}, {"date": "2026-01-15", "count": 4}, {"date": "2026-01-16", "count": 1}, {"date": "2026-01-17", "count": 2}, {"date": "2026-01-18", "count": 3}, {"date": "2026-01-19", "count": 3}, {"date": "2026-01-20", "count": 1}, {"date": "2026-01-21", "count": 2}, {"date": "2026-01-22", "count": 2}, {"date": "2026-01-23", "count": 3}, {"date": "2026-01-24", "count": 4}, {"date": "2026-01-25", "count": 1}, {"date": "2026-01-26", "count": 64}, {"date": "2026-01-27", "count": 9}, {"date": "2026-01-28", "count": 6}, {"date": "2026-01-29", "count": 6}, {"date": "2026-01-30", "count": 1}, {"date": "2026-01-31", "count": 4}, {"date": "2026-02-01", "count": 2}, {"date": "2026-02-02", "count": 11}, {"date": "2026-02-03", "count": 3}, {"date": "2026-02-04", "count": 4}, {"date": "2026-02-05", "count": 4}, {"date": "2026-02-06", "count": 9}, {"date": "2026-02-07", "count": 4}, {"date": "2026-02-08", "count": 3}, {"date": "2026-02-09", "count": 10}, {"date": "2026-02-10", "count": 3}, {"date": "2026-02-11", "count": 6}, {"date": "2026-02-12", "count": 6}, {"date": "2026-02-13", "count": 5}, {"date": "2026-02-14", "count": 2}, {"date": "2026-02-15", "count": 3}, {"date": "2026-02-16", "count": 2}, {"date": "2026-02-17", "count": 3}, {"date": "2026-02-18", "count": 5}, {"date": "2026-02-19", "count": 1}, {"date": "2026-02-20", "count": 12}, {"date": "2026-02-22", "count": 2}, {"date": "2026-02-23", "count": 5}, {"date": "2026-02-24", "count": 6}, {"date": "2026-02-25", "count": 11}, {"date": "2026-02-26", "count": 23}, {"date": "2026-02-27", "count": 4}, {"date": "2026-02-28", "count": 5}, {"date": "2026-03-01", "count": 7}, {"date": "2026-03-02", "count": 4}, {"date": "2026-03-03", "count": 9}, {"date": "2026-03-04", "count": 4}, {"date": "2026-03-05", "count": 9}, {"date": "2026-03-07", "count": 5}, {"date": "2026-03-09", "count": 3}, {"date": "2026-03-10", "count": 2}, {"date": "2026-03-11", "count": 7}, {"date": "2026-03-13", "count": 1}, {"date": "2026-03-15", "count": 4}, {"date": "2026-03-16", "count": 7}, {"date": "2026-03-17", "count": 1}, {"date": "2026-03-18", "count": 36}, {"date": "2026-03-19", "count": 48}, {"date": "2026-03-20", "count": 48}, {"date": "2026-03-21", "count": 621}, {"date": "2026-03-22", "count": 983}, {"date": "2026-03-23", "count": 510}, {"date": "2026-03-24", "count": 244}, {"date": "2026-03-25", "count": 511}, {"date": "2026-03-26", "count": 576}, {"date": "2026-03-27", "count": 638}, {"date": "2026-03-28", "count": 485}, {"date": "2026-03-29", "count": 661}, {"date": "2026-03-30", "count": 1090}], "timeseries_by_source": {"naver_news": [{"date": "2026-01-01", "count": 10}, {"date": "2026-01-02", "count": 9}, {"date": "2026-01-03", "count": 2}, {"date": "2026-01-04", "count": 1}, {"date": "2026-01-05", "count": 5}, {"date": "2026-01-06", "count": 9}, {"date": "2026-01-07", "count": 40}, {"date": "2026-01-08", "count": 32}, {"date": "2026-01-09", "count": 39}, {"date": "2026-01-10", "count": 4}, {"date": "2026-01-11", "count": 1}, {"date": "2026-01-12", "count": 6}, {"date": "2026-01-13", "count": 5}, {"date": "2026-01-14", "count": 7}, {"date": "2026-01-15", "count": 4}, {"date": "2026-01-16", "count": 1}, {"date": "2026-01-17", "count": 2}, {"date": "2026-01-18", "count": 3}, {"date": "2026-01-19", "count": 3}, {"date": "2026-01-20", "count": 1}, {"date": "2026-01-21", "count": 2}, {"date": "2026-01-22", "count": 2}, {"date": "2026-01-23", "count": 3}, {"date": "2026-01-24", "count": 4}, {"date": "2026-01-25", "count": 1}, {"date": "2026-01-26", "count": 64}, {"date": "2026-01-27", "count": 9}, {"date": "2026-01-28", "count": 6}, {"date": "2026-01-29", "count": 6}, {"date": "2026-01-30", "count": 1}, {"date": "2026-01-31", "count": 4}, {"date": "2026-02-01", "count": 2}, {"date": "2026-02-02", "count": 9}, {"date": "2026-02-03", "count": 2}, {"date": "2026-02-04", "count": 4}, {"date": "2026-02-05", "count": 4}, {"date": "2026-02-06", "count": 8}, {"date": "2026-02-07", "count": 3}, {"date": "2026-02-08", "count": 3}, {"date": "2026-02-09", "count": 10}, {"date": "2026-02-10", "count": 3}, {"date": "2026-02-11", "count": 6}, {"date": "2026-02-12", "count": 6}, {"date": "2026-02-13", "count": 5}, {"date": "2026-02-14", "count": 2}, {"date": "2026-02-15", "count": 3}, {"date": "2026-02-16", "count": 2}, {"date": "2026-02-17", "count": 3}, {"date": "2026-02-18", "count": 5}, {"date": "2026-02-19", "count": 1}, {"date": "2026-02-20", "count": 12}, {"date": "2026-02-22", "count": 2}, {"date": "2026-02-23", "count": 5}, {"date": "2026-02-24", "count": 6}, {"date": "2026-02-25", "count": 11}, {"date": "2026-02-26", "count": 23}, {"date": "2026-02-27", "count": 4}, {"date": "2026-02-28", "count": 5}, {"date": "2026-03-01", "count": 7}, {"date": "2026-03-02", "count": 4}, {"date": "2026-03-03", "count": 9}, {"date": "2026-03-04", "count": 4}, {"date": "2026-03-07", "count": 5}, {"date": "2026-03-09", "count": 3}, {"date": "2026-03-10", "count": 2}, {"date": "2026-03-11", "count": 7}, {"date": "2026-03-13", "count": 1}, {"date": "2026-03-15", "count": 3}, {"date": "2026-03-16", "count": 7}, {"date": "2026-03-17", "count": 1}, {"date": "2026-03-18", "count": 32}, {"date": "2026-03-19", "count": 43}, {"date": "2026-03-20", "count": 29}, {"date": "2026-03-21", "count": 594}, {"date": "2026-03-22", "count": 956}, {"date": "2026-03-23", "count": 474}, {"date": "2026-03-24", "count": 207}, {"date": "2026-03-25", "count": 482}, {"date": "2026-03-26", "count": 507}, {"date": "2026-03-27", "count": 598}, {"date": "2026-03-28", "count": 452}, {"date": "2026-03-29", "count": 625}, {"date": "2026-03-30", "count": 930}], "youtube_comment": [{"date": "2026-02-02", "count": 2}, {"date": "2026-02-03", "count": 1}, {"date": "2026-02-06", "count": 1}, {"date": "2026-02-07", "count": 1}, {"date": "2026-03-05", "count": 9}, {"date": "2026-03-15", "count": 1}, {"date": "2026-03-18", "count": 4}, {"date": "2026-03-19", "count": 5}, {"date": "2026-03-20", "count": 19}, {"date": "2026-03-21", "count": 27}, {"date": "2026-03-22", "count": 27}, {"date": "2026-03-23", "count": 36}, {"date": "2026-03-24", "count": 37}, {"date": "2026-03-25", "count": 29}, {"date": "2026-03-26", "count": 69}, {"date": "2026-03-27", "count": 40}, {"date": "2026-03-28", "count": 33}, {"date": "2026-03-29", "count": 36}, {"date": "2026-03-30", "count": 160}]}, "spike_dates": ["2026-01-06", "2026-01-07", "2026-01-26", "2026-02-02", "2026-02-06", "2026-02-20", "2026-02-25", "2026-02-26", "2026-03-11", "2026-03-18", "2026-03-19", "2026-03-21", "2026-03-22"], "spike_reports": [{"date": "2026-01-06", "trigger": "정국 솔로곡 'Seven' 오디오 영상 유튜브 1억뷰 돌파 및 아시아 솔로 최초 통산 6곡 1억뷰 기록 달성", "explanation": "방탄소년단 정국의 솔로 데뷔곡 'Seven' 클린 버전 오디오 영상이 유튜브 조회수 1억회를 돌파하며, 정국이 아시아 솔로 가수 최초로 유튜브에서 6곡의 오디오 영상으로 1억뷰를 기록한 아티스트가 되었다. 이는 스포티파이에서의 여러 신기록과 함께 정국의 전 세계적인 인기를 증명하며 큰 주목을 받았다.", "keywords": ["정국", "Seven", "유튜브", "1억뷰", "스포티파이", "솔로", "신기록"]}, {"date": "2026-01-07", "trigger": "방탄소년단 완전체 컴백 소식", "explanation": "2026년 3월 20일로 예고된 방탄소년단 완전체 컴백 소식이 전해지면서, 과거 발매곡 '달려라 방탄'이 미국 빌보드 '월드 디지털 송 세일즈' 차트 1위를 기록하는 등 멤버들의 솔로곡들까지 동반 역주행하며 폭발적인 관심과 화제를 불러일으켰다.", "keywords": ["방탄소년단", "완전체 컴백", "달려라 방탄", "빌보드 차트", "역주행"]}, {"date": "2026-01-26", "trigger": "방탄소년단 월드투어 개최 및 컴백 발표", "explanation": "방탄소년단이 월드투어 개최와 함께 오는 3월 20일 정규 5집 '아리랑' 발매를 발표하며 전 세계적인 관심을 모았다. 이 소식으로 해외 여행 검색량과 경제 지표가 급증하는 등 관광 및 경제 전반에 막대한 파급 효과를 일으켰다.", "keywords": ["방탄소년단", "BTS", "월드투어", "아리랑", "컴백", "관광", "경제"]}, {"date": "2026-02-02", "trigger": "방탄소년단 정국의 스포티파이 103억 스트리밍 돌파", "explanation": "방탄소년단 정국이 K-팝 솔로 가수 최초이자 아시아 가수 최단 기간으로 스포티파이 103억 스트리밍을 달성했다는 소식이 집중 보도되며 팬들 사이에서 큰 화제가 되었다. 특히 그의 솔로 데뷔곡 'Seven'이 이 기록 달성의 핵심 동력이 되어 광범위하게 언급되었다.", "keywords": ["정국", "스포티파이", "103억 스트리밍", "솔로 최단 기록", "Seven"]}, {"date": "2026-02-06", "trigger": "방탄소년단 정국, 솔로 활동으로 다수 글로벌 신기록 달성", "explanation": "방탄소년단 정국이 2월 5일 기준 스포티파이 솔로곡 통산 11억 스트리밍, 틱톡 개인 해시태그 3000억뷰 돌파 등 여러 글로벌 신기록을 세우며 보도되어 큰 화제가 되었다. 이는 아시아 솔로 아티스트 최초 및 최장 기록들로 주목받았다.", "keywords": ["정국", "방탄소년단", "솔로", "신기록", "틱톡", "스포티파이"]}, {"date": "2026-02-20", "trigger": "로제 '아파트' IFPI 글로벌 싱글 차트 1위 발표", "explanation": "로제의 곡 '아파트'가 국제음반산업협회(IFPI) '글로벌 싱글 차트'에서 2025년 세계 최고 히트곡으로 선정되며 1위를 달성했다는 소식이 전해졌다. 이는 K팝 여성 솔로 가수 최초이자 K팝 아티스트 전체를 통틀어 최장 차트 진입 기록으로, 싸이, 방탄소년단, 정국 등 기존 K팝 아티스트의 성과를 뛰어넘는 역사적인 사건으로 주목받았다.", "keywords": ["로제", "아파트", "IFPI", "글로벌 싱글 차트", "K팝"]}, {"date": "2026-02-25", "trigger": "방탄소년단 정국 '세계에서 가장 유명한 25인' 선정", "explanation": "방탄소년단 정국이 트럼프, 머스크, 호날두 등 유명 인사들과 어깨를 나란히 하며 '세계에서 가장 유명한 25인'에 선정되었다는 소식이 전해지며 큰 화제가 되었다. 그의 솔로곡 'Seven', '3D' 등의 성공적인 활동으로 입증된 글로벌 영향력을 재확인하는 계기가 되었으며, 스포티파이 28억 스트리밍 돌파 등 최근 성과도 함께 언급되며 팬들과 대중의 관심을 집중시켰다.", "keywords": ["정국", "세계에서 가장 유명한 25인", "솔로 활동", "글로벌 영향력", "스포티파이"]}, {"date": "2026-02-26", "trigger": "정국 음주 라이브 방송 논란", "explanation": "방탄소년단 정국이 2월 26일 새벽 취중 라이브 방송에서 소속사에 대한 불만을 토로하고 욕설과 손가락 욕을 사용해 논란이 불거졌다. 팬들의 만류에도 불구하고 솔직한 심경을 표출했으며, 결국 해당 방송 영상은 삭제되었다.", "keywords": ["정국", "음주 라이브", "욕설", "소속사 불만", "방탄소년단"]}, {"date": "2026-03-11", "trigger": "정국 솔로 앨범 'GOLDEN', '2020년대 히트 앨범 톱20' 선정", "explanation": "방탄소년단 정국의 첫 솔로 앨범 'GOLDEN'이 차트 분석 계정 'Talk of the Charts'에서 발표한 '2020년대 강력한 히트곡을 가장 많이 배출한 앨범 톱20'에 이름을 올리며 그의 글로벌 히트메이커 위상을 다시 확인했습니다. 이 소식이 팬들 사이에서 큰 화제가 되어 소셜 미디어 언급량이 급증했습니다.", "keywords": ["정국", "GOLDEN", "2020년대", "히트 앨범", "Talk of the Charts"]}, {"date": "2026-03-18", "trigger": "방탄소년단 완전체 컴백 솔로 포스터 및 신곡 '스윔' 뮤직비디오 티저 공개", "explanation": "3년 9개월 만에 완전체 컴백하는 방탄소년단이 정규 5집 'ARIRANG' 발매(20일)를 앞두고 18일 타이틀곡 '스윔'의 뮤직비디오 티저와 컴백 라이브를 위한 멤버별 솔로 포스터를 공개했다. 멤버들의 독보적인 아우라가 담긴 포스터와 신곡 티저는 팬들의 폭발적인 반응을 불러일으켰다.", "keywords": ["방탄소년단", "BTS", "컴백", "솔로 포스터", "스윔", "ARIRANG", "티저"]}, {"date": "2026-03-19", "trigger": "방탄소년단 완전체 컴백 신곡 'SWIM' 뮤직비디오 추가 티저 공개", "explanation": "방탄소년단이 4년 8개월 만의 완전체 컴백을 하루 앞두고, 정규 5집 '아리랑'의 타이틀곡 'SWIM' 뮤직비디오의 추가 티저를 공개하며 전 세계 팬들의 폭발적인 기대감을 모았다. 멤버들의 성공적인 솔로 활동 이후 첫 완전체 활동에 대한 관심이 집중되며 관련 소식이 급증했다.", "keywords": ["BTS", "컴백", "SWIM", "뮤비 티저", "완전체"]}, {"date": "2026-03-21", "trigger": "방탄소년단(BTS) 광화문 컴백 라이브", "explanation": "방탄소년단이 3년 9개월 만에 완전체로 광화문 광장에서 대규모 컴백 라이브 'ARIRANG'을 개최하여 신곡 무대를 처음 선보이며 국내외 팬들의 폭발적인 관심을 모았다.", "keywords": ["방탄소년단", "광화문", "컴백 공연"]}, {"date": "2026-03-22", "trigger": "방탄소년단 완전체 컴백 광화문 공연", "explanation": "2026년 3월 21일 밤, 그룹 방탄소년단이 서울 광화문 광장에서 약 4년 만에 완전체 컴백 무대를 선보였다. 신곡 'Body to Body' (아리랑 샘플링)를 포함한 새 앨범 수록곡들을 최초 공개하며 전 세계 팬들의 폭발적인 관심을 불러일으켰고, 다음 날 관련 소셜 미디어 데이터가 급증했다.", "keywords": ["방탄소년단", "컴백", "광화문", "신곡"]}], "total_collected": 6954};
+const COLORS = ['#38bdf8','#a78bfa','#34d399','#fbbf24','#f87171'];
+
+// ────────────────────────────────────────────────────────────────────────────
+// KPIs
+// ────────────────────────────────────────────────────────────────────────────
+(function() {
+  const clusters = CLUSTER_DATA.clusters || [];
+  const avgPos = clusters.length
+    ? (clusters.reduce((s,c) => s + (c.positive_ratio||0), 0) / clusters.length * 100).toFixed(1)
+    : 0;
+  document.getElementById('kpi-pos').textContent = avgPos + '%';
+  document.getElementById('kpi-spikes').textContent = (SPIKE_DATA.spike_dates||[]).length + '일';
+  document.getElementById('kpi-clusters').textContent = clusters.length + '개';
+})();
+
+// ────────────────────────────────────────────────────────────────────────────
+// Source bar
+// ────────────────────────────────────────────────────────────────────────────
+(function() {
+  const stats = CLUSTER_DATA.source_stats || {};
+  const total = Object.values(stats).reduce((a,b) => a+b, 0);
+  if (!total) return;
+
+  const palette = {'naver_news':'#03c75a','youtube_comment':'#ff4444','x_post':'#aaaaaa'};
+  const labels  = {'naver_news':'네이버 뉴스','youtube_comment':'YouTube 댓글','x_post':'X(트위터)'};
+
+  const bar = document.getElementById('source-bar');
+  const leg = document.getElementById('source-legend');
+
+  Object.entries(stats).forEach(([k,v]) => {
+    const pct = (v/total*100).toFixed(1);
+    const seg = document.createElement('div');
+    seg.style.cssText = `flex:${pct};background:${palette[k]||'#64748b'};transition:flex .5s`;
+    seg.title = `${labels[k]||k}: ${v}건 (${pct}%)`;
+    bar.appendChild(seg);
+
+    const item = document.createElement('span');
+    item.innerHTML = `<span class="source-dot" style="background:${palette[k]||'#64748b'}"></span>${labels[k]||k} ${v.toLocaleString()}건 (${pct}%)`;
+    leg.appendChild(item);
+  });
+})();
+
+// ────────────────────────────────────────────────────────────────────────────
+// Time-series (날짜별 실제 발행 기준)
+// ────────────────────────────────────────────────────────────────────────────
+(function() {
+  const ts = SPIKE_DATA.timeseries || [];
+  const spikeDates = new Set(SPIKE_DATA.spike_dates || []);
+  const dates  = ts.map(d => d.date);
+  const counts = ts.map(d => d.count);
+
+  // 출처별 시계열
+  const bySource = SPIKE_DATA.timeseries_by_source || {};
+  const sourceColors = {'naver_news':'#03c75a','youtube_comment':'#ff4444','x_post':'#aaaaaa'};
+  const sourceLabels = {'naver_news':'네이버 뉴스','youtube_comment':'YouTube 댓글','x_post':'X'};
+
+  const markPoints = ts
+    .filter(d => spikeDates.has(d.date))
+    .map(d => {
+      const report = (SPIKE_DATA.spike_reports||[]).find(r => r.date === d.date);
+      return {
+        coord: [d.date, d.count],
+        value: '⚡',
+        symbolSize: 40,
+        itemStyle: {color:'#f59e0b'},
+        label: {show:true, formatter:'⚡', fontSize:16},
+        tooltip: { formatter: report ? `${d.date}<br><b>${report.trigger}</b>` : d.date }
+      };
+    });
+
+  // 이동평균 선
+  const window3 = 3;
+  const movAvg = counts.map((_, i) => {
+    const slice = counts.slice(Math.max(0, i-window3+1), i+1);
+    return +(slice.reduce((a,b)=>a+b,0)/slice.length).toFixed(1);
+  });
+
+  const series = [
+    {
+      name:'전체 언급량', type:'bar',
+      data: counts,
+      itemStyle: {
+        color: (params) => spikeDates.has(dates[params.dataIndex]) ? '#f59e0b' : '#38bdf8',
+        borderRadius: [4,4,0,0]
+      },
+      markPoint: { data: markPoints },
+      barMaxWidth: 40,
+    },
+    {
+      name:'이동평균(3일)', type:'line', data: movAvg,
+      lineStyle: {color:'#a78bfa', type:'dashed', width:2},
+      itemStyle: {color:'#a78bfa'}, symbol:'none', smooth:true,
+    }
+  ];
+
+  const chart = echarts.init(document.getElementById('chart-ts'));
+  chart.setOption({
+    backgroundColor:'transparent',
+    tooltip:{
+      trigger:'axis', backgroundColor:'#1e293b', borderColor:'#334155',
+      textStyle:{color:'#e2e8f0'},
+      formatter: (params) => {
+        const date = params[0].axisValue;
+        const report = (SPIKE_DATA.spike_reports||[]).find(r=>r.date===date);
+        let s = `<b>${date}</b><br>`;
+        params.forEach(p => s += `${p.marker}${p.seriesName}: <b>${p.value}</b>건<br>`);
+        if (report) s += `<div style="margin-top:6px;color:#f59e0b;font-size:12px">⚡ ${report.trigger}</div>`;
+        return s;
+      }
+    },
+    legend:{data:['전체 언급량','이동평균(3일)'], textStyle:{color:'#94a3b8'}, top:0},
+    grid:{top:40, bottom:40, left:50, right:20, containLabel:true},
+    xAxis:{type:'category', data:dates, axisLabel:{color:'#94a3b8', rotate:dates.length>15?30:0}, axisLine:{lineStyle:{color:'#334155'}}},
+    yAxis:{type:'value', name:'건수', nameTextStyle:{color:'#64748b'}, axisLabel:{color:'#94a3b8'}, splitLine:{lineStyle:{color:'#1e3a5f'}}},
+    series
+  });
+  window.addEventListener('resize', ()=>chart.resize());
+})();
+
+// ────────────────────────────────────────────────────────────────────────────
+// Sentiment bar + Emotion words
+// ────────────────────────────────────────────────────────────────────────────
+(function() {
+  const clusters = CLUSTER_DATA.clusters || [];
+  const labels = clusters.map(c => c.label);
+  const pos    = clusters.map(c => +(c.positive_ratio*100).toFixed(1));
+  const neg    = clusters.map(c => +(c.negative_ratio*100).toFixed(1));
+
+  const chart = echarts.init(document.getElementById('chart-sentiment'));
+  chart.setOption({
+    backgroundColor:'transparent',
+    tooltip:{
+      trigger:'axis', backgroundColor:'#1e293b', borderColor:'#334155',
+      textStyle:{color:'#e2e8f0'},
+      formatter: (params) => {
+        const ci = params[0].dataIndex;
+        const c  = clusters[ci];
+        const posWords = (c.positive_emotion_words||[]).join(', ') || '—';
+        const negWords = (c.negative_emotion_words||[]).join(', ') || '—';
+        return `<b>${c.label}</b><br>
+          긍정 ${pos[ci]}% | 부정 ${neg[ci]}%<br>
+          <span style="color:#34d399">긍정어: ${posWords}</span><br>
+          <span style="color:#f87171">부정어: ${negWords}</span>`;
+      }
+    },
+    legend:{data:['긍정','부정'], textStyle:{color:'#94a3b8'}, top:0},
+    grid:{top:30, left:20, right:20, bottom:10, containLabel:true},
+    xAxis:{type:'value', max:100, axisLabel:{color:'#94a3b8', formatter:'{value}%'}, splitLine:{lineStyle:{color:'#1e3a5f'}}},
+    yAxis:{type:'category', data:labels, axisLabel:{color:'#e2e8f0', width:100, overflow:'truncate'}},
+    series:[
+      {name:'긍정', type:'bar', stack:'s', data:pos, itemStyle:{color:'#34d399', borderRadius:[4,0,0,4]}},
+      {name:'부정', type:'bar', stack:'s', data:neg, itemStyle:{color:'#f87171', borderRadius:[0,4,4,0]}}
+    ]
+  });
+  window.addEventListener('resize',()=>chart.resize());
+
+  // Emotion word chips per cluster
+  const container = document.getElementById('emotion-words');
+  clusters.forEach((c, i) => {
+    const row = document.createElement('div');
+    row.style.cssText = 'margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid #0f172a';
+    const posW = (c.positive_emotion_words||[]).map(w=>`<span class="chip chip-pos">${w}</span>`).join('');
+    const negW = (c.negative_emotion_words||[]).map(w=>`<span class="chip chip-neg">${w}</span>`).join('');
+    row.innerHTML = `
+      <div style="font-size:.8rem;font-weight:600;color:${COLORS[i%COLORS.length]};margin-bottom:6px">${c.label}</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <div><div style="font-size:.7rem;color:#34d399;margin-bottom:4px">긍정 표현</div><div class="emotion-chips">${posW||'<span style="color:#475569;font-size:.75rem">없음</span>'}</div></div>
+        <div><div style="font-size:.7rem;color:#f87171;margin-bottom:4px">부정 표현</div><div class="emotion-chips">${negW||'<span style="color:#475569;font-size:.75rem">없음</span>'}</div></div>
+      </div>`;
+    container.appendChild(row);
+  });
+})();
+
+// ────────────────────────────────────────────────────────────────────────────
+// Pie + cluster stories
+// ────────────────────────────────────────────────────────────────────────────
+(function() {
+  const clusters = CLUSTER_DATA.clusters || [];
+  const pieData  = clusters.map((c,i) => ({
+    name: c.label,
+    value: Math.round((c.positive_ratio + c.negative_ratio) * 100),
+    itemStyle: {color: COLORS[i%COLORS.length]}
+  }));
+
+  const chart = echarts.init(document.getElementById('chart-pie'));
+  chart.setOption({
+    backgroundColor:'transparent',
+    tooltip:{trigger:'item', backgroundColor:'#1e293b', borderColor:'#334155', textStyle:{color:'#e2e8f0'}, formatter:'{b}<br>{d}%'},
+    legend:{orient:'vertical', right:0, textStyle:{color:'#94a3b8', fontSize:11}},
+    series:[{
+      type:'pie', radius:['38%','68%'], center:['38%','50%'],
+      data: pieData, label:{show:false},
+      emphasis:{itemStyle:{shadowBlur:10,shadowColor:'rgba(0,0,0,.5)'}}
+    }]
+  });
+  window.addEventListener('resize',()=>chart.resize());
+
+  // Per-cluster mini-story
+  const stContainer = document.getElementById('cluster-stories');
+  clusters.forEach((c,i) => {
+    const div = document.createElement('div');
+    div.style.cssText = `background:#0f172a;border-radius:8px;padding:10px 12px;border-left:3px solid ${COLORS[i%COLORS.length]}`;
+    const posEmoji = c.positive_ratio >= 0.5 ? '😊' : '😟';
+    div.innerHTML = `
+      <div style="font-size:.8rem;font-weight:600;color:${COLORS[i%COLORS.length]};margin-bottom:4px">${posEmoji} ${c.label}</div>
+      <div style="font-size:.75rem;color:#94a3b8;line-height:1.5">${(c.sample_texts||[]).slice(0,1).join('')}</div>`;
+    stContainer.appendChild(div);
+  });
+})();
+
+// ────────────────────────────────────────────────────────────────────────────
+// Knowledge Graph (interactive)
+// ────────────────────────────────────────────────────────────────────────────
+(function() {
+  const edges    = CLUSTER_DATA.edges || [];
+  const clusters = CLUSTER_DATA.clusters || [];
+
+  // Build node map
+  const nodeMap = {};
+  const edgeMap = {}; // node → [connected nodes]
+
+  edges.forEach(e => {
+    nodeMap[e.source] = nodeMap[e.source] || {name:e.source, value:0, category:0};
+    nodeMap[e.target] = nodeMap[e.target] || {name:e.target, value:0, category:0};
+    nodeMap[e.source].value += (e.weight||1);
+    nodeMap[e.target].value += (e.weight||1)*0.5;
+    if (!edgeMap[e.source]) edgeMap[e.source] = [];
+    if (!edgeMap[e.target]) edgeMap[e.target] = [];
+    edgeMap[e.source].push(e.target);
+    edgeMap[e.target].push(e.source);
+  });
+
+  // Assign cluster category
+  const kwToCluster = {};
+  clusters.forEach((c,ci) => {
+    (c.keywords||[]).forEach(kw => {
+      kwToCluster[kw] = ci;
+      if (!nodeMap[kw]) nodeMap[kw] = {name:kw, value:1, category:ci};
+      else nodeMap[kw].category = ci;
+    });
+  });
+
+  const nodes = Object.values(nodeMap).map(n => ({
+    ...n,
+    symbolSize: Math.min(55, Math.max(18, n.value * 4 + 18)),
+    itemStyle: {color: COLORS[n.category % COLORS.length]}
+  }));
+  const links = edges.map(e => ({source:e.source, target:e.target, value:e.weight||1}));
+  const categories = clusters.map((c,i) => ({name:c.label, itemStyle:{color:COLORS[i%COLORS.length]}}));
+
+  const chart = echarts.init(document.getElementById('chart-graph'));
+  chart.setOption({
+    backgroundColor:'transparent',
+    tooltip:{
+      trigger:'item', backgroundColor:'#1e293b', borderColor:'#334155',
+      textStyle:{color:'#e2e8f0'},
+      formatter: (p) => p.dataType==='node'
+        ? `<b>${p.name}</b><br>연결 수: ${(edgeMap[p.name]||[]).length}개`
+        : `${p.data.source} → ${p.data.target}`
+    },
+    legend:{data:categories.map(c=>c.name), textStyle:{color:'#94a3b8',fontSize:11}, top:6},
+    series:[{
+      type:'graph', layout:'force',
+      data:nodes, links, categories,
+      roam:true, draggable:true,
+      label:{show:true, position:'right', color:'#e2e8f0', fontSize:11},
+      lineStyle:{color:'#334155', curveness:0.15, opacity:0.6},
+      force:{repulsion:220, gravity:0.08, edgeLength:[60,180], layoutAnimation:true},
+      emphasis:{
+        focus:'adjacency',
+        itemStyle:{shadowBlur:12, shadowColor:'rgba(255,255,255,.2)'},
+        lineStyle:{width:3, color:'#38bdf8'}
+      }
+    }]
+  });
+
+  // Click handler
+  chart.on('click', {dataType:'node'}, (params) => {
+    const name    = params.name;
+    const related = [...new Set(edgeMap[name]||[])];
+    const ci      = kwToCluster[name] ?? nodeMap[name]?.category ?? 0;
+    const cluster = clusters[ci] || {};
+
+    // Highlight in graph
+    chart.dispatchAction({type:'focusNodeAdjacency', dataIndex: params.dataIndex});
+
+    // Update right panel
+    document.getElementById('graph-default').style.display = 'none';
+    const detail = document.getElementById('node-detail');
+    detail.classList.add('active');
+
+    document.getElementById('nd-name').textContent = name;
+    document.getElementById('nd-cluster').textContent =
+      `군집: ${cluster.label || '미분류'} · 연결 키워드 ${related.length}개`;
+
+    // Related chips
+    const relContainer = document.getElementById('nd-related');
+    relContainer.innerHTML = related.length
+      ? related.map(r => `<span class="related-chip" onclick="clickNode('${r}')">${r}</span>`).join('')
+      : '<span style="color:#475569;font-size:.8rem">연결 없음</span>';
+
+    // Sample texts from cluster
+    const samples = document.getElementById('nd-samples');
+    const texts = (cluster.sample_texts||[]).slice(0,3);
+    samples.innerHTML = texts.length
+      ? texts.map(t => `<div class="sample-text">${t}</div>`).join('')
+      : '<div style="color:#475569;font-size:.8rem">샘플 없음</div>';
+
+    // Emotion words
+    const posW = (cluster.positive_emotion_words||[]);
+    const negW = (cluster.negative_emotion_words||[]);
+    document.getElementById('nd-emotions').innerHTML =
+      `<div style="margin-bottom:6px">${posW.map(w=>`<span class="chip chip-pos">${w}</span>`).join(' ')||'—'}</div>
+       <div>${negW.map(w=>`<span class="chip chip-neg">${w}</span>`).join(' ')||'—'}</div>`;
+  });
+
+  // Allow clicking related chips to navigate
+  window.clickNode = (name) => {
+    const idx = nodes.findIndex(n=>n.name===name);
+    if (idx>=0) chart.dispatchAction({type:'click', dataIndex:idx, dataType:'node', seriesIndex:0});
+  };
+
+  window.addEventListener('resize',()=>chart.resize());
+})();
+
+// ────────────────────────────────────────────────────────────────────────────
+// Spike reports
+// ────────────────────────────────────────────────────────────────────────────
+(function() {
+  const reports = SPIKE_DATA.spike_reports || [];
+  if (!reports.length) return;
+  document.getElementById('spike-section').style.display = 'block';
+  const list = document.getElementById('spike-list');
+  reports.forEach(r => {
+    const div = document.createElement('div');
+    div.className = 'spike-card';
+    div.innerHTML = `
+      <div class="spike-date">📅 ${r.date}</div>
+      <div class="spike-trigger">⚡ ${r.trigger}</div>
+      <div class="spike-explain">${r.explanation}</div>
+      <div class="spike-keywords">${(r.keywords||[]).map(k=>`<span class="spike-kw">${k}</span>`).join('')}</div>`;
+    list.appendChild(div);
+  });
+})();
+</script>
+</body>
+</html>
